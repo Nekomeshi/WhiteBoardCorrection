@@ -1,0 +1,72 @@
+<resources>
+
+    <string name="app_name">WhiteBoardCorrectionActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_white_board_correction">WhiteBoardCorrection</string>
+	<string name="preview_fps_range_title">"Preview FPS Range"</string>
+	<string name="preview_fps_range_summary">"Choose maximum and maximum preview fps."</string>
+	<string name="starting_camera">"Starting camera.."</string>
+	
+	<string name="keep_out_area_msg">"Keep-out Area"</string>
+	<string name="picture_folder_base_name">"WBCRN"</string>
+	<string name="picture_base_name">"DSC_"</string>
+	<string name="picture_warped_name">"WARP"</string>
+			
+	<!-- error message -->
+	<string name="error_msg_cant_detect_wb">"Can't detect whiteboard."</string>
+	<string name="error_msg_cant_open_camera">"Can't open camera."</string>
+	<string name="error_msg_cant_focus">"Can't focus."</string>
+	<string name="error_msg_cant_create_data_folder">"Can't create data folder."</string>
+	<string name="error_msg_cant_open_captuer_image">"Can't open captured pic."</string>
+	<string name="error_msg_saved_file_info">"Invalid picture info."</string>
+	<string name="error_msg_cant_load_image_file">"Can't load captured image file."</string>
+	<string name="error_msg_cant_save_image_file">"Can't save warped image file."</string>
+	<string name="error_msg_warp_out_of_memory">"No enough memory.\nReduse the output resolution and try again."</string>
+			
+	<!-- whiteboard check activity -->
+	<string name="white_board_check_canceled">"Canceled"</string>
+	<string name="aspect_dlg_title">"Chose aspect of ouput image."</string>
+	<string name="warp_check_dlg_title">"Are you good at this correction?"</string>	
+	<string name="save_as_following_name">"Saved corrected image as following name:\n"</string>
+	<!-- About Dialog -->
+	<string name="about_dialog_wait">"Please wait"</string>
+	<string name="about_tab_license">"AGPL License"</string>
+	<string name="about_tab_app">"About"</string>
+	<string name="about_copyright">"%1$s\nVersion: %2$s\n\n(c)Copyright Nekomeshi. All rights reserverd.\n\nThis app use AGPL license. Source codes are available from following URL:%3$s"</string>
+	<string name="about_download_url">"https://github.com/Nekomeshi/WhiteBoardCorrection.git"</string>			
+
+		<!-- option menu -->
+    <string name="menu_settings">Settings</string>
+    <string name="menu_load_and_correct">"Load and correct Image"</string>
+    <string name="menu_image_check">"Check Image"</string>
+   	<string name="menu_about">"About WhiteBoardCorrection"</string>
+	<string name="menu_shutter_button">"Shutter"</string>
+	<string name="menu_resolution_select">"Resolution"</string>
+	<string name="menu_resolution_explanation">"Chose a width of ouput image"</string>
+	<string name="menu_resolution_title_format">"%dpx"</string>
+	<string name="menu_resolution_1920">"1920px"</string>
+	<string name="menu_resolution_1280">"1280px"</string>
+	<string name="menu_resolution_1024">"1024px"</string>
+	<string name="menu_resolution_640">"640px"</string>
+	<string name="menu_aspect_select">"Aspect"</string>
+	<string name="menu_aspect_explanation">"Chose a aspect ratio of ouput image"</string>
+	<string name="menu_aspect_title_format">"%1$d:%2$d"</string>
+	<string name="menu_aspect_4_3">"4:3"</string>
+	<string name="menu_aspect_3_2">"3:2"</string>
+	<string name="menu_aspect_16_10">"16:10"</string>
+	<string name="menu_aspect_16_9">"16:9"</string>
+	<string name="menu_aspect_2_1">"2:1"</string>
+	<string name="menu_aspect_other">"other"</string>
+	<string name="menu_aspect_other_format">"other(%1$d:%2$d)"</string>
+	<string name="menu_area_confirm">"Confirm"</string>
+				
+    <!-- setting-->		
+    <string name="pref_resolution_key">"resolution_key"</string>
+    <string name="pref_aspect_width_key">"aspect_width_key"</string>
+    <string name="pref_aspect_height_key">"aspect_height_key"</string>
+	
+	 <string-array name="action_list">
+        <item>FilterMode</item>
+        <item>Non-FilterMode</item>
+	</string-array>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>  
+<LinearLayout  
+  	xmlns:android="http://schemas.android.com/apk/res/android"  
+  	android:id = "@+id/tabView"  
+  	android:layout_width="fill_parent"  
+  	android:layout_height="fill_parent"  
+  	android:gravity = "center">  
+    <TextView   
+        android:id="@+id/tab_label"   
+        android:text = "test"  
+        android:layout_width="fill_parent"   
+        android:layout_height="fill_parent"  
+        android:gravity = "center"      
+        android:background = "@drawable/tab_color"   
+        android:paddingLeft = "5dip"
+        android:paddingRight = "5dip"
+        android:paddingTop = "10dip"
+        android:paddingBottom = "10dip"/>  
+</LinearLayout>  

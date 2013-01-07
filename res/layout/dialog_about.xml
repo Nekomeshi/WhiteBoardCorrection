@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+   	<!-- license tabエリア -->
+	<TabHost
+	    android:id="@+id/about_tab_host"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:layout_weight="1">
+		<LinearLayout
+		    android:id="@+id/linearLayout1"
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent"
+		    android:orientation="vertical"
+		    android:padding="4dp" >
+            <TabWidget
+            	android:id="@android:id/tabs"
+            	android:layout_width="fill_parent"
+            	android:layout_height="wrap_content">
+	        </TabWidget>
+    	    <FrameLayout
+    	        android:id="@android:id/tabcontent"
+    	        android:layout_width="fill_parent"
+    	        android:layout_height="fill_parent"
+    	        android:background="@drawable/about_tab_shape_body"
+    	        android:layout_gravity="center_horizontal|center"
+    	        android:foregroundGravity="center" >
+	           	<LinearLayout
+	           	    android:id="@+id/tab_about_msg"
+	           	    android:layout_width="fill_parent"
+	           	    android:layout_height="fill_parent"
+	           	    android:gravity="center"
+	           	    android:padding="4dp" >
+	           	    <ScrollView
+				        android:layout_width="match_parent"
+				        android:layout_height="match_parent">
+       					<TextView 
+       				    	android:id="@+id/app_copyright_info"
+       				    	android:layout_width="wrap_content"
+       				   	 	android:layout_height="wrap_content"
+       				    	android:text=""/>
+	           		</ScrollView>
+       			</LinearLayout>
+       			<LinearLayout
+       			    android:id="@+id/tab_agpl_license"
+       			    android:layout_width="fill_parent"
+       			    android:layout_height="fill_parent"
+       			    android:gravity="center"
+       			    android:padding="4dp" >
+				    <ScrollView
+				        android:layout_width="match_parent"
+				        android:layout_height="match_parent">
+						<TextView
+						    android:layout_width="wrap_content"
+	    					android:layout_height="wrap_content"
+	    					android:id="@+id/license_message"
+					    	android:text=""/>
+ 				   </ScrollView>
+       			</LinearLayout>
+	       	</FrameLayout>
+ 		</LinearLayout>
+    </TabHost>
+</LinearLayout>

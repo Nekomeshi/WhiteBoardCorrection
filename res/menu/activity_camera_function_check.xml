@@ -1,0 +1,7 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_about"
+        android:title="@string/menu_about"
+        android:orderInCategory="65535"
+        android:icon="@android:drawable/ic_menu_help"
+        android:showAsAction="never" />
+</menu>

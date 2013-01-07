@@ -1,0 +1,48 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    
+	<item android:id="@+id/menu_resolution_select"
+        android:showAsAction="ifRoom"
+		android:orderInCategory="80"
+        android:title="@string/menu_resolution_select">
+		<menu>
+   		    <group android:id="@+id/resolution_checkable"
+				android:checkableBehavior="single">
+	   		    <item android:id="@+id/menu_resolution_1920"
+    	      		android:title="@string/menu_resolution_1920"/>
+	   		    <item android:id="@+id/menu_resolution_1280"
+    	      		android:title="@string/menu_resolution_1280"/>
+	   		    <item android:id="@+id/menu_resolution_1024"
+    	      		android:title="@string/menu_resolution_1024"/>
+   	   		    <item android:id="@+id/menu_resolution_640"
+    	      		android:title="@string/menu_resolution_640"/>
+    		</group>
+		</menu>
+	</item>
+    <item android:id="@+id/menu_aspect_select"
+        android:title="@string/menu_aspect_select"
+        android:orderInCategory="81"
+        android:showAsAction="ifRoom" >
+		<menu>
+   		    <group android:id="@+id/aspect_checkable"
+				android:checkableBehavior="single">
+	   		    <item android:id="@+id/menu_aspect_4_3"
+    	      		android:title="@string/menu_aspect_4_3"/>
+	   		    <item android:id="@+id/menu_aspect_3_2"
+    	      		android:title="@string/menu_aspect_3_2"/>
+	   		   	<item android:id="@+id/menu_aspect_16_10"
+    	      		android:title="@string/menu_aspect_16_10"/>
+	   		    <item android:id="@+id/menu_aspect_16_9"
+    	      		android:title="@string/menu_aspect_16_9"/>
+	   		    <item android:id="@+id/menu_aspect_2_1"
+    	      		android:title="@string/menu_aspect_2_1"/>
+	   		    <item android:id="@+id/menu_aspect_other"
+    	      		android:title="@string/menu_aspect_other"/>
+   		    </group>
+		</menu>
+    </item>
+    <item android:id="@+id/menu_whiteboard_correct_ok"
+        android:title="@string/menu_area_confirm"
+        android:orderInCategory="100"
+        android:enabled="false"
+        android:showAsAction="always" />
+</menu>

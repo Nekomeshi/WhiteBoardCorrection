@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+	<FrameLayout 
+   		android:layout_gravity="center"
+    	android:layout_width="match_parent"
+    	android:layout_height="match_parent" 
+    	android:id="@+id/camera_view_layout">
+    	<view class="com.nekomeshi312.whiteboardcorrection.CameraSurfaceView"
+			android:id="@+id/camera_surface_view"
+			android:layout_width="match_parent"
+       		android:layout_height="match_parent"
+       		android:layout_gravity="center"
+       		android:gravity="center"/>
+   		<view class="com.nekomeshi312.whiteboardcorrection.WhiteBoardAreaView"
+      		android:id="@+id/whiteboard_area_view"
+			android:layout_width="match_parent"
+       		android:layout_height="match_parent"
+       		android:layout_gravity="center"
+       		android:gravity="center"/>
+	    <TextView
+   		    android:id="@+id/keep_out_area_msg"
+       		android:layout_width="match_parent"
+	       	android:layout_height="match_parent"
+    	   	android:text="@string/keep_out_area_msg"
+       		android:layout_gravity="center"
+	       	android:gravity="center"
+    	   	android:textColor="#FFFFFFFF"/>
+
+	</FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/line_detection_error_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/error_msg_cant_detect_wb"
+            android:visibility="invisible"/>
+    </LinearLayout>
+</FrameLayout>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">"白板正面"</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_white_board_correction">"白板正面"</string>
+    
+    <string name="keep_out_area_msg">"4辺がこのエリア外に\nなるようにしてください"</string>
+	<string name="picture_folder_base_name">"WBCRN"</string>
+	<string name="picture_base_name">"DSC_"</string>
+	<string name="picture_warped_name">"WARP"</string>
+	<string name="starting_camera">"撮影準備中です"</string>
+			
+	<!-- error message -->
+    <string name="error_msg_cant_detect_wb">"ホワイトボードが検出できません"</string>
+	<string name="error_msg_cant_open_camera">"カメラをオープンできません"</string>
+	<string name="error_msg_cant_focus">"ピント合わせができませんでした"</string>
+	<string name="error_msg_cant_create_data_folder">データフォルダを作成できませんでした。</string>
+	<string name="error_msg_cant_open_captuer_image">"撮影した画像を開けませんでした"</string>
+	<string name="error_msg_saved_file_info">"保存された画像情報が異常です."</string>
+	<string name="error_msg_cant_load_image_file">"画像の読み込みに失敗しました"</string>
+	<string name="error_msg_cant_save_image_file">"補正画像が保存できませんでした."</string>
+	<string name="error_msg_warp_out_of_memory">"メモリが足りません.\n出力画像の解像度を下げて再度実行してください."</string>
+	
+	<!-- whiteboard check activity -->
+	<string name="white_board_check_canceled">"キャンセルされました"</string>
+	<string name="aspect_dlg_title">"出力画像の縦横比を入力してください"</string>
+	<string name="warp_check_dlg_title">"この補正で良いですか？"</string>								
+	<string name="save_as_following_name">"補正された画像は次のファイル名で保存されました:\n"</string>
+		
+	<!-- About Dialog -->
+	<string name="about_dialog_wait">"お待ちください"</string>
+	<string name="about_tab_license">"ライセンス"</string>
+	<string name="about_tab_app">"About"</string>
+	<string name="about_copyright">"%1$s\nVersion: %2$s\n\n(c)Copyright Nekomeshi. All rights reserverd.\n\n本アプリはAGPLライセンスに基づき作成されています。ソースコードは以下のURLより入手可能です。\n%3$s"</string>
+	<string name="about_download_url">"https://github.com/Nekomeshi/WhiteBoardCorrection.git"</string>			
+	
+	<!-- option menu -->
+    <string name="menu_settings">"設定"</string>
+    <string name="menu_load_and_correct">"ファイルから補正"</string>
+    <string name="menu_image_check">"画像確認"</string>
+    <string name="menu_about">"WhiteBoardCorrectionについて"</string>
+	<string name="menu_shutter_button">"シャッター"</string>
+	<string name="menu_resolution_select">"出力解像度"</string>
+	<string name="menu_resolution_explanation">"出力する画像の横幅を選択してください"</string>
+	<string name="menu_resolution_title_format">"%dpx"</string>
+	<string name="menu_resolution_1920">"1920px"</string>
+	<string name="menu_resolution_1280">"1280px"</string>
+	<string name="menu_resolution_1024">"1024px"</string>
+	<string name="menu_resolution_640">"640px"</string>
+	<string name="menu_aspect_select">"縦横比"</string>
+	<string name="menu_aspect_explanation">"出力する画像の縦横比を選択してください"</string>
+	<string name="menu_aspect_title_format">"%1$d:%2$d"</string>
+	<string name="menu_aspect_4_3">"4:3"</string>
+	<string name="menu_aspect_3_2">"3:2"</string>
+	<string name="menu_aspect_16_10">"16:10"</string>
+	<string name="menu_aspect_16_9">"16:9"</string>
+	<string name="menu_aspect_2_1">"2:1"</string>
+	<string name="menu_aspect_other">"その他"</string>
+	<string name="menu_aspect_other_format">"その他(%1$d:%2$d)"</string>
+	<string name="menu_area_confirm">"確認"</string>
+	
+	
+    <!-- setting-->		
+    <string name="pref_resolution_key">"resolution_key"</string>
+    <string name="pref_aspect_width_key">"aspect_width_key"</string>
+    <string name="pref_aspect_height_key">"aspect_height_key"</string>
+		
+</resources>
