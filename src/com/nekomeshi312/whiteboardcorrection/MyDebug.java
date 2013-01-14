@@ -26,5 +26,5 @@
 package com.nekomeshi312.whiteboardcorrection;
 
 public class MyDebug {
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 }

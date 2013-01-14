@@ -41,15 +41,12 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
@@ -57,20 +54,16 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Rect;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -114,7 +107,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 	private WhiteBoardAreaView mWBCorrectionView = null;
 	private FrameLayout mWBCheckViewBase = null;
 	private Bitmap mPicBitmap = null;
-
+	private boolean mIsFirstOnGlobalLayout = true;
 	
 	private Menu mMenu = null;
 	private int mOutputWidth = 640;
@@ -271,8 +264,9 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 			@Override
 			public void onGlobalLayout() {//親のviewのサイズが確定するのを待って読み出しを開始する
 				// TODO Auto-generated method stub
-				if(mPicBitmap == null){
+				if(mIsFirstOnGlobalLayout){
 					//jpegファイルをロードしWBエリアを再度計算し直す
+					mIsFirstOnGlobalLayout = false;
 					LoadJpegFileAsyncTask loadJpegTask = new LoadJpegFileAsyncTask ();
 					loadJpegTask.execute();
 				}
@@ -970,6 +964,8 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
     }
 	
 	private class LoadJpegFileAsyncTask extends AsyncTask<Void, Integer, ArrayList<Point>>{
+		private static final int PROGRESS_ERROR_CANT_DETECT_WB = -2;
+		private static final int PROGRESS_ERROR_CANT_READ_FILE = -1;
 		private static final int PROGRESS_STEP_JPEGSIZE_DECIDED = 0;
 		private static final int PROGRESS_STEP_LOAD_JPEG = 1;
 		private static final int PROGRESS_STEP_DETECT_LINE = 2;
@@ -1010,10 +1006,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 				e.printStackTrace();
 			}
 			mLoadingDialog = null;
-			if(result == null){
-				Toast.makeText(mParentActivity, R.string.error_msg_cant_detect_wb, Toast.LENGTH_SHORT).show();
-			}
-			else{
+			if(result != null){
 				mWBCorrectionView.setWhiteBoardCorners(result);
 				mIsPictureOK = true;
 			}
@@ -1051,6 +1044,12 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 			super.onProgressUpdate(values);
 
 			switch(values[0]){
+				case PROGRESS_ERROR_CANT_READ_FILE:
+					Toast.makeText(mParentActivity, R.string.error_msg_cant_load_image_file, Toast.LENGTH_SHORT).show();
+					break;
+				case PROGRESS_ERROR_CANT_DETECT_WB:
+					Toast.makeText(mParentActivity, R.string.error_msg_cant_detect_wb, Toast.LENGTH_SHORT).show();
+					break;
 				case PROGRESS_STEP_JPEGSIZE_DECIDED:
 					//jpegサイズが決まったので、親のviewのサイズをそれに合わせる
 					final int w = values[1];
@@ -1079,7 +1078,10 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 			//jpegロード
 			final String fn = mFilePath + mFileName;
 			mPicBitmap = loadJpeg(fn, mScreenWidth, mScreenHeight);
-			if(mPicBitmap == null) return null;
+			if(mPicBitmap == null){
+				publishProgress(PROGRESS_ERROR_CANT_READ_FILE);
+				return null;
+			}
 			//ロード時のサンプリングの関係でjpegサイズがスクリーンサイズに一致しないので再度リサイズする
 			int w = mPicBitmap.getWidth();
 			int h = mPicBitmap.getHeight();
@@ -1130,15 +1132,29 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 				points = new ArrayList<Point>();
 				wbResult = wbDetect.detectWhiteBoard(lines, lineNum, points, null);
 				publishProgress(PROGRESS_STEP_DETECT_WB);
-
 			}
 			if(!wbResult){//WBエリアが見つからなかった時
-
-				if(mPreviewPoints == null){//previewでもWBエリアが見つかっていないときは諦める
-					points = null;
+				points = new ArrayList<Point>();
+				if(mPreviewPoints == null){//previewでもWBエリアが見つかっていないときは諦めて、画面の中央に長方形を置く
+					Point p = new Point();
+					p.x = (double)w/4.0;
+					p.y = (double)h/4.0;
+					points.add(p);
+					p = new Point();
+					p.x = (double)w*3.0/4.0;
+					p.y = (double)h/4.0;
+					points.add(p);
+					p = new Point();
+					p.x = (double)w*3.0/4.0;
+					p.y = (double)h*3.0/4.0;
+					points.add(p);
+					p = new Point();
+					p.x = (double)w/4.0;
+					p.y = (double)h*3.0/4.0;
+					points.add(p);
+					publishProgress(PROGRESS_ERROR_CANT_DETECT_WB);
 				}
 				else{//PreviewでのWBエリアを最終画像でのエリアに変換する
-					points = new ArrayList<Point>();
 					for(int i = 0;i < 4;i++){
 						Point p = new Point();
 						p.x = (double)mPreviewPoints[i*2 + 0]*(double)w/(double)mPrevWidth;

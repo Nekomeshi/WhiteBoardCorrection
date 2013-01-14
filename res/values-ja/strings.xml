@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">"白板正面"</string>
+    <string name="app_name">"まっすぐ白板"</string>
     <string name="hello_world">Hello world!</string>
-    <string name="title_activity_white_board_correction">"白板正面"</string>
+    <string name="title_activity_white_board_correction">"まっすぐ白板"</string>
     
     <string name="keep_out_area_msg">"4辺がこのエリア外に\nなるようにしてください"</string>
 	<string name="picture_folder_base_name">"WBCRN"</string>

@@ -64,7 +64,6 @@ public class WhiteBoardDetect {
 	private boolean divByAngle(int lines[], int lineNum, Mat img){
 		double angleHist[] = new double[ANGLE_DIV_NUM];
 		for(int i = 0;i < ANGLE_DIV_NUM;i++) angleHist[i] = 0.0;
-		
 		for (int i = 0; i < lineNum; i++){
 			int i5 = i*5;
 			LineInfo li = new LineInfo();
@@ -73,13 +72,14 @@ public class WhiteBoardDetect {
 							(double)lines[i5+2], 
 							(double)lines[i5+3], 
 							(double)lines[i5+4]);
-			if(!li.mIsOK) continue;//点は排除
+			if(!li.mIsOK){
+				continue;//点は排除
+			}
 			final int anglePos = (int)(li.mAngle/DIV_ANGLE);
 			angleHist[anglePos] += li.mLength;
 			mLineInfo.add(li);
 		}
-
-		//角度について判別分析法でしきい値を決める。0～PI 三値
+		//角度について判別分析法でしきい値を決める。0～PI ２値
 		//判別分析方については　http://imagingsolution.blog107.fc2.com/blog-entry-113.html
 		if(MyDebug.DEBUG){
 			for(int i = 0;i < ANGLE_DIV_NUM;i++){
@@ -90,44 +90,64 @@ public class WhiteBoardDetect {
 		int thres2 = 0;
 		double integral[] = new double[ANGLE_DIV_NUM];
 		double average[] = new double[ANGLE_DIV_NUM];
-		integral[0] = angleHist[0];
-		average[0] = 0.0;
-		for(int i = 1;i < ANGLE_DIV_NUM;i++){
-			integral[i] = integral[i - 1] + angleHist[i];
-			average[i] = average[i - 1] + angleHist[i]*(double)i;
-		}
-		final double allNum = integral[ANGLE_DIV_NUM - 1];
-		final double allAvg = average[ANGLE_DIV_NUM - 1];
-		double maxVal = -1;
+		double maxSeparation = -1.0;
 		for(int t1 = 0;t1 < ANGLE_DIV_NUM;t1++){
-			for(int t2 = t1+1;t2 < ANGLE_DIV_NUM;t2++){
-			    // 指定閾値より小さい値の領域
-				final double n1 = integral[t1];  // 画素数
-				final double n2 = integral[t2] - integral[t1];  // 画素数
-				final double n3 = allNum - integral[t2];  // 画素数
-				final double m1 = n1 == 0 ? 0.0:average[t1]/n1;
-				final double m2 = n2 == 0 ? 0.0:(average[t2] - average[t1])/n2;
-				final double m3 = n3 == 0 ? 0.0:(allAvg - average[t2])/n3;
+			integral[0] = angleHist[t1];
+			average[0] = 0.0;
+			for(int i = 1;i < ANGLE_DIV_NUM;i++){
+				integral[i] = integral[i - 1] + angleHist[(i + t1)%ANGLE_DIV_NUM];
+				average[i] = average[i - 1] + angleHist[(i + t1)%ANGLE_DIV_NUM]*(double)i;
+			}
+			final double allNum = integral[ANGLE_DIV_NUM - 1];
+			final double allAvg = average[ANGLE_DIV_NUM - 1];
+			final double avg = allAvg/allNum;//全体の平均
+			double variance = 0.0;//全体の分散　下のループ内で計算する
+			int maxT2 = 0;
+			double maxVal = -1;
+			double omega1 = 0.0;//領域１の画素数
+			double omega2 = 0.0;//領域2の画素数
+			for(int t2 = 0;t2 < ANGLE_DIV_NUM;t2++){
+				final double tmp = t2-avg;
+				variance += tmp*tmp*angleHist[ (t2+t1)%ANGLE_DIV_NUM];
+				final double n1 = integral[t2];  // 画素数
+				final double n2 = allNum - n1;  // 画素数
+				final double m1 = n1 == 0 ? 0.0:average[t2]/n1;
+				final double m2 = n2 == 0 ? 0.0:(allAvg - average[t2])/n2;
 				final double subm1m2 = m1 - m2;
-				final double subm2m3 = m2 - m3;
-				final double subm3m1 = m3 - m1;
-				final double val = n1*n2*subm1m2*subm1m2 + n2*n3*subm2m3*subm2m3 + n3*n1*subm3m1*subm3m1;
+				final double val = n1*n2*subm1m2*subm1m2;
 				if(val > maxVal){
 					maxVal = val;
-					thres1 = t1;
-					thres2 = t2;
+					maxT2 = (t2 + t1) % ANGLE_DIV_NUM;
+					omega1 = n1;
+					omega2 = n2;
 				}
 			}
+			variance /= allNum;//全体の分散
+			final double sumOmega = omega1 + omega2;
+			//分離度を計算　分離度は　クラス間分散/(全体分散-クラス間分散) 
+			//クラス間分散は　上で計算したmaxVal/(omega1 + omega2)^2
+			double separation = maxVal/(sumOmega*sumOmega);
+			separation = separation/(variance - separation);
+			if(separation > maxSeparation){
+				if(t1 < maxT2){
+					thres1 = t1;
+					thres2 = maxT2;
+				}
+				else{
+					thres1 = maxT2+1;
+					thres2 = t1-1;					
+				}
+				maxSeparation = separation;
+			}
 		}
+		
+		if(MyDebug.DEBUG){
+			Log.d(LOG_TAG, "thres = " + thres1 + "/" + thres2);
+		}
+		
 		int angle0Count = 0;
 		int angle1Count = 0;
 
-		//各クラスごとに線分を描画(debug)
-		Scalar color[] = new Scalar[2];
-		color[0] = new Scalar(0xff, 0x00, 0x80);
-		color[1] = new Scalar(0x00, 0xff, 0x80);
-
-		
 		for(LineInfo li:mLineInfo){
 			final int pos = (int)(li.mAngle/DIV_ANGLE);
 			if(pos > thres1 && pos <= thres2){
@@ -138,149 +158,74 @@ public class WhiteBoardDetect {
 				li.mLocationFlg =  LineInfo.ANGLE1;
 				angle1Count++;
 			}
-
-/*			if(img != null){
-				if(li.mLocationFlg == LineInfo.ANGLE0){
-				    Core.line(img, li.mStart, li.mEnd, color[0], 5);
-				}
-				else{
-				    Core.line(img, li.mStart, li.mEnd, color[1], 5);
-				}
-			}
-*/	
+			//各クラスごとに線分を描画(debug)
+// 			Scalar color[] = new Scalar[2];
+//			color[0] = new Scalar(0xff, 0x00, 0x80);
+//			color[1] = new Scalar(0x00, 0xff, 0x80);
+//			if(img != null){
+//				if(li.mLocationFlg == LineInfo.ANGLE0){
+//				    Core.line(img, li.mStart, li.mEnd, color[0], 5);
+//				}
+//				else{
+//				    Core.line(img, li.mStart, li.mEnd, color[1], 5);
+//				}
+//			}
 		}
 		if(angle0Count == 0 || angle1Count == 0) return false;
 		return true;
 	}
 	/**
-	 * 分けられた各角度に対して、位置で２つのクラスに分ける。しきい値は判別分析法で。結果は各線分のLineInfoクラスのmLineInfo.mLocationFlgに書き込まれる
+	 * 分けられた各角度に対して、位置で２つのクラスに分ける。単純に切片の正負で分ける
 	 * @param img　結果を書き込む画像。nullなら書き込まない。
 	 * @return true:成功　false:失敗
 	 */
 	private boolean divByIntersept(Mat img){
-		ArrayList<LineInfo> []lineArray = new ArrayList[2];
-		for(int i = 0;i < 2;i++) lineArray[i] = new ArrayList<LineInfo>();
-		double [] minSectionX = {Double.MAX_VALUE, Double.MAX_VALUE};
-		double [] maxSectionX = {-Double.MAX_VALUE, -Double.MAX_VALUE};
 		int [] sectionNumX = {0, 0};
-		int [] sectionSteepNumX = {0, 0};
-		double [] minSectionY = {Double.MAX_VALUE, Double.MAX_VALUE};
-		double [] maxSectionY = {-Double.MAX_VALUE, -Double.MAX_VALUE};
 		int [] sectionNumY = {0, 0};
-		int [] sectionSteepNumY = {0, 0};
-	
-		//傾きで２つのクラスに線分を分けつつ切片の最大値・最小値を計算・・・切片を使って、位置で傾きのクラスごとに２つのクラスに分けるため
 		for(LineInfo li:mLineInfo){
 			final int angleNo = li.mLocationFlg == LineInfo.ANGLE0 ? 0:1;
-
-			if(li.mSectionX != Double.MAX_VALUE){//X切片が計算されている場合
-				if(li.mSectionX > maxSectionX[angleNo]) maxSectionX[angleNo] = li.mSectionX;
-				if(li.mSectionX < minSectionX[angleNo]) minSectionX[angleNo] = li.mSectionX;
+			if(Math.abs(li.mLineEq.a) > Math.abs(li.mLineEq.b) ){
 				sectionNumX[angleNo]++;
 			}
-			if(li.mSectionY != Double.MAX_VALUE){//Y切片が計算されている場合
-				if(li.mSectionY > maxSectionY[angleNo]) maxSectionY[angleNo] = li.mSectionY;
-				if(li.mSectionY < minSectionY[angleNo]) minSectionY[angleNo] = li.mSectionY;
+			else{
 				sectionNumY[angleNo]++;
 			}
-			if(li.mIsSteep){//傾きが急な場合はX切片が有利
-				sectionSteepNumX[angleNo]++;
-			}
-			else{//傾きがゆるやかな場合はY切片が有利
-				sectionSteepNumY[angleNo]++;
-			}
-			lineArray[angleNo].add(li);
-		}
-		
-		boolean []useSection = new boolean[2];
-		
-		if(lineArray[0].size() == 0 || lineArray[1].size() == 0) return false;//縦線/横線少なくともどちらかが存在しない。	
-
-		final int SECTION_DIV_NUM = 30;
-		double sectionHist[] = new double[SECTION_DIV_NUM];
-		//傾きのクラスごとに
-		for(int angleNo = 0;angleNo < 2;angleNo++){
-			//切片でヒストグラムを作る
-			for(int i = 0;i < SECTION_DIV_NUM;i++) sectionHist[i] = 0.0;
-			double minSection;
-			double maxSection;
-			boolean useX;
-			//ヒストグラムの最大・最小を計算
-			if(sectionNumX[angleNo] > sectionNumY[angleNo]){//X切片のほうが数が多い場合X切片を使う
-				minSection = minSectionX[angleNo];
-				maxSection = maxSectionX[angleNo];
-				useX = true;
-			}
-			else if(sectionNumX[angleNo] < sectionNumY[angleNo]){//Y切片のほうが多い場合はY切片を使う
-				minSection = minSectionY[angleNo];
-				maxSection = maxSectionY[angleNo];
-				useX = false;
-			}
-			else{//X切片、Y切片数が同じ場合
-				if(sectionSteepNumX[angleNo] > sectionSteepNumY[angleNo]){//傾きが急なほうが多い場合はX切片を使う
-					minSection = minSectionX[angleNo];
-					maxSection = maxSectionX[angleNo];
-					useX = true;
-				}
-				else{//そうでない場合はY切片を使う
-					minSection = minSectionY[angleNo];
-					maxSection = maxSectionY[angleNo];
-					useX = false;
-				}
-			}
-			useSection[angleNo] = useX;
-			//切片ヒストグラム１ステップの間隔を計算
-			final double sectionRange = maxSection - minSection;
-			//ヒストグラム作成
-			for(LineInfo li: lineArray[angleNo]){
-				double section = useX ? li.mSectionX:li.mSectionY;
-				if(section == Double.MAX_VALUE) continue;
-				int hisPos = (int)((section - minSection)/sectionRange * (double)SECTION_DIV_NUM);
-				if(hisPos == SECTION_DIV_NUM) hisPos--;//最大値の時は当てはまる
-				sectionHist[hisPos]+= li.mLength;
-			}
-			if(MyDebug.DEBUG){
-				for(int i = 0;i < SECTION_DIV_NUM;i++){
-					Log.d(LOG_TAG, "hist(" + angleNo + ")[" + i + "] =" + sectionHist[i] );
-				}
-			}
-			//判別分析法
-			double integral[] = new double[SECTION_DIV_NUM];
-			double average[] = new double[SECTION_DIV_NUM];
-			integral[0] = sectionHist[0];
-			average[0] = 0.0;
-			for(int i = 1;i < SECTION_DIV_NUM;i++){
-				integral[i] = integral[i-1] + sectionHist[i];
-				average[i] = average[i-1] + sectionHist[i]*(double)i;
-			}
-			final double allNum = integral[SECTION_DIV_NUM-1];
-			final double allAvg = average[SECTION_DIV_NUM-1];
-			 // 各階調の値を閾値としたときの分散の計算
-			double maxVal = 0;
-			int thres = 0;
-			for(int i = 0;i < SECTION_DIV_NUM;i++){
-				final double n1 = integral[i];
-				final double n2 = allNum - integral[i];
-				final double m1 = n1 == 0 ? 0.0:average[i]/n1;
-				final double m2 = n2 == 0 ? 0.0:(allAvg - average[i])/n2;
-				final double subm2m1 = m2 - m1;
-				final double val = n1*n2*subm2m1*subm2m1;
-		        if (val > maxVal) {
-		          maxVal = val;
-		          thres = i;
-		        }
-			}
-			if(MyDebug.DEBUG){
-				Log.d(LOG_TAG, "thres = " + thres);
-			}
-			for(LineInfo li: lineArray[angleNo]){
-				double section = useX ? li.mSectionX:li.mSectionY;
-				int hisPos = (int)((section - minSection)/sectionRange * (double)SECTION_DIV_NUM);
-				
-				li.mLocationFlg |= (hisPos > thres) ? LineInfo.LOCAT0:LineInfo.LOCAT1;
-			}
 		}
 
+		for(LineInfo li:mLineInfo){
+			final int angleNo = li.mLocationFlg == LineInfo.ANGLE0 ? 0:1;
+			if(sectionNumX[angleNo] > sectionNumY[angleNo]){//x軸との切片を使う
+				if(li.mLineEq.a > 0.0){
+					li.mLocationFlg |= LineInfo.LOCAT0;
+				}
+				else{
+					li.mLocationFlg |= LineInfo.LOCAT1;
+				}
+			}
+			else{
+				if(li.mLineEq.b > 0.0){
+					li.mLocationFlg |= LineInfo.LOCAT0;
+				}
+				else{
+					li.mLocationFlg |= LineInfo.LOCAT1;
+				}
+			}
+			if(img != null){
+				Scalar color[] = new Scalar[4];
+				color[0] = new Scalar(0xff, 0x00, 0x00);
+				color[1] = new Scalar(0x00, 0xff, 0x00);
+				color[2] = new Scalar(0x00, 0x00, 0xff);
+				color[3] = new Scalar(0xff, 0x00, 0xff);
+				for(LineInfo linfo:mLineInfo){
+					int col = 0;
+					if(linfo.mLocationFlg == (LineInfo.LOCAT0 | LineInfo.ANGLE0)) col = 0;
+					if(linfo.mLocationFlg == (LineInfo.LOCAT0 | LineInfo.ANGLE1)) col = 1;
+					if(linfo.mLocationFlg == (LineInfo.LOCAT1 | LineInfo.ANGLE0)) col = 2;
+					if(linfo.mLocationFlg == (LineInfo.LOCAT1 | LineInfo.ANGLE1)) col = 3;
+				    Core.line(img, linfo.mStart, linfo.mEnd, color[col], 5);
+				}
+			}
+		}
 		return true;
 	}
 	/**
@@ -311,7 +256,9 @@ public class WhiteBoardDetect {
 
         //4クラスとも線分が存在したら(普通あるはずだが一応
 		if(classifiedLines[0][0].size() == 0 || classifiedLines[0][1].size() == 0 ||
-				classifiedLines[1][0].size() == 0 || classifiedLines[1][1].size() == 0) return false;
+				classifiedLines[1][0].size() == 0 || classifiedLines[1][1].size() == 0){
+			return false;
+		}
 		
 		for(int ang = 0;ang < 2;ang++){//傾きごとに
 			for(int sec = 0;sec < 2;sec++){//切片ごとに
@@ -324,12 +271,15 @@ public class WhiteBoardDetect {
 				double aveB = 0.0;
 				double stdevA = 0.0;
 				double stdevB = 0.0;
-				double aMax = 0.0;
-				double aMin = 0.0;
-				double bMax = 0.0;
-				double bMin = 0.0;
+				double aMax = Double.MIN_VALUE;
+				double aMin = Double.MAX_VALUE;
+				double bMax = Double.MIN_VALUE;
+				double bMin = Double.MAX_VALUE;
 			
 				for(int i = 0;i < OUTLIER_LOOPNUM;i++){
+					if(classifiedLines[ang][sec].size() == 0){
+						return false;
+					}
 					aveA = 0.0;
 					aveB = 0.0;
 					stdevA = 0.0;
@@ -357,16 +307,34 @@ public class WhiteBoardDetect {
 					if(i < OUTLIER_LOOPNUM-1){
 						ArrayList<LineInfo> tmp = new ArrayList<LineInfo>();
 						for(LineInfo li:classifiedLines[ang][sec]){
-							if(li.mLineEq.a > aMax) continue;
-							if(li.mLineEq.a < aMin) continue;
-							if(li.mLineEq.b > bMax) continue;
-							if(li.mLineEq.b < bMin) continue;
+							//とりあえず a, b少なくとも片方が範囲外の場合は無視する条件で計算
+							if( li.mLineEq.a > aMax || li.mLineEq.a < aMin || li.mLineEq.b > bMax ||li.mLineEq.b < bMin) continue;
 							tmp.add(li);
 						}
-						classifiedLines[ang][sec] = tmp;
+						if(tmp.size() > 0){
+							classifiedLines[ang][sec] = tmp;
+						}
+						else{
+							for(LineInfo li:classifiedLines[ang][sec]){
+								//もし上の条件で一つも線分が残らなかったら、a,b両方範囲外の場合だけ無視する
+								if( (li.mLineEq.a > aMax || li.mLineEq.a < aMin) && (li.mLineEq.b > bMax ||li.mLineEq.b < bMin)) continue;
+								tmp.add(li);
+							}
+							classifiedLines[ang][sec] = tmp;
+						}
 					}
 				}
-				if(classifiedLines[ang][sec].size() == 0) return false;
+				//max/min計算しなおし
+				aMax = Double.MIN_VALUE;
+				aMin = Double.MAX_VALUE;
+				bMax = Double.MIN_VALUE;
+				bMin = Double.MAX_VALUE;
+				for(LineInfo li:classifiedLines[ang][sec]){
+					if(li.mLineEq.a > aMax) aMax = li.mLineEq.a;
+					if(li.mLineEq.a < aMin) aMin = li.mLineEq.a;
+					if(li.mLineEq.b > bMax) bMax = li.mLineEq.b;
+					if(li.mLineEq.b < bMin) bMin = li.mLineEq.b;
+				}
 				
 				final double aDiv = (aMax - aMin)/(double)HIST_DIV_NUM;
 				final double bDiv = (bMax - bMin)/(double)HIST_DIV_NUM;
@@ -379,10 +347,6 @@ public class WhiteBoardDetect {
 				}
 				int linenum = 0;
 				for(LineInfo li:classifiedLines[ang][sec]){
-					if(li.mLineEq.a > aMax) continue;
-					if(li.mLineEq.a < aMin) continue;
-					if(li.mLineEq.b > bMax) continue;
-					if(li.mLineEq.b < bMin) continue;
 					int aPos = (int) ((li.mLineEq.a - aMin)/aDiv);
 					if(aPos == HIST_DIV_NUM) aPos--;
 					int bPos = (int)((li.mLineEq.b - bMin)/bDiv);
@@ -390,11 +354,12 @@ public class WhiteBoardDetect {
 					hist[aPos][bPos].pushLine(li);
 					linenum++;
 				}
-				if(linenum == 0) return false;
+				if(linenum == 0){
+					return false;
+				}
 				int maxAPos = 0;
 				int maxBPos = 0;
 				double maxLen = 0.0;
-//				Log.e(LOG_TAG, "ang = " + ang + "  sec = " + sec);
 				for(int a = 0;a < HIST_DIV_NUM;a++){
 					for(int b = 0;b < HIST_DIV_NUM;b++){
 						if(hist[a][b].getLineListNum() == 0){
@@ -404,7 +369,6 @@ public class WhiteBoardDetect {
 						for(LineInfo li:hist[a][b].mLineList){
 							len += li.mLength;
 						}
-//						Log.d(LOG_TAG, "a:b = " + a*aDiv + aMin + ":" + b*bDiv + bMin + "length sum = " + len + "amax/min = " + aMax + ":" + aMin + " bmax/min = " + bMax + ":" + bMin);
 						if(maxLen < len){
 							maxAPos = a;
 							maxBPos = b;
@@ -420,7 +384,6 @@ public class WhiteBoardDetect {
 					lineEq[ang][sec].a = ((double)maxAPos + 0.5)*aDiv + aMin;
 					lineEq[ang][sec].b = ((double)maxBPos + 0.5)*bDiv + bMin;
 				}
-//				Log.d(LOG_TAG, "max = "+ maxAPos + ":" + maxBPos + "div = " + aDiv + ":" + bDiv + "min = " + aMin + ":" + bMin + "ab = " + lineEq[ang][sec].a + ":" + lineEq[ang][sec].b);
 
 				if(img != null){
 					final double aa = lineEq[ang][sec].a;
@@ -439,15 +402,14 @@ public class WhiteBoardDetect {
 					    pt2.x = (1.0 - bb*(float)(centerY))/aa + (float)centerX;
 					    pt2.y = (float)mViewHeight;
 					}
-					if(Math.abs(bb) > 0.001 && Math.abs(aa/bb) > 0.3 && Math.abs(aa/bb) < 2){
-						if(MyDebug.DEBUG){
+					if(MyDebug.DEBUG){
+						if(Math.abs(bb) > 0.001 && Math.abs(aa/bb) > 0.3 && Math.abs(aa/bb) < 2){
 							Log.d(LOG_TAG, "ang = " + ang + " sec = " + sec + " max a/b = " + maxAPos + ":" + maxBPos);
+							//Core.line(img, pt1, pt2, new Scalar(0xff, 0x00, 0x00), 5);
 						}
-						
-//					    Core.line(img, pt1, pt2, new Scalar(0xff, 0x00, 0x00), 5);
-					}
-					else{
-	//				    Core.line(img, pt1, pt2, new Scalar(0xff, 0xff, 0xff), 5);
+						else{
+							//Core.line(img, pt1, pt2, new Scalar(0xff, 0xff, 0xff), 5);
+						}
 					}
 
 					//各クラスごとに線分を描画(debug)
@@ -458,7 +420,6 @@ public class WhiteBoardDetect {
 					color[3] = new Scalar(0xff, 0x00, 0xff);
 					
 					for(LineInfo li:mLineInfo){
-					//for(LineInfo li:hist[maxAPos][maxBPos].mLineList){
 						int c = 0;
 						if(li.mLocationFlg == (LineInfo.ANGLE0|LineInfo.LOCAT0)){
 							c = 0;
@@ -475,7 +436,6 @@ public class WhiteBoardDetect {
 					    Core.line(img, li.mStart, li.mEnd, color[c], 1);
 					    Core.circle(img, li.mStart, 10, color[0]);
 					    Core.circle(img, li.mEnd, 10, color[1]);
-
 					}
 				}
 			}
@@ -560,6 +520,11 @@ public class WhiteBoardDetect {
 			    Core.circle(img, points.get(i), 30, color[i], 5);
 			}
 		}
+		if(MyDebug.DEBUG){
+			for(int i = 0;i < 4;i++){
+			    Log.d(LOG_TAG, "point(" + i + ") = " + points.get(i).x + ":" + points.get(i).y);
+			}
+		}
 
 		return true;
 	}
@@ -585,14 +550,14 @@ public class WhiteBoardDetect {
 		if(!divByAngle(lines, lineNum, img)) return false;
 		if(MyDebug.DEBUG){
 			newSec = System.currentTimeMillis();
-			Log.d(LOG_TAG, "divByAngle" + (newSec - oldSec));
+			Log.d(LOG_TAG, "divByAngle" + (newSec - oldSec) + "mS");
 			oldSec = newSec;
 		}
 		//各クラスについて、位置で２つのクラスに分ける(2x2=4クラス)
 		if(!divByIntersept(img)) return false;
 		if(MyDebug.DEBUG){
 			newSec = System.currentTimeMillis();
-			Log.d(LOG_TAG, "divByIntersept" + (newSec - oldSec));
+			Log.d(LOG_TAG, "divByIntersept" + (newSec - oldSec) + "mS");
 			oldSec = newSec;
 		}
 	
@@ -607,7 +572,7 @@ public class WhiteBoardDetect {
 		
 		if(MyDebug.DEBUG){
 			newSec = System.currentTimeMillis();
-			Log.d(LOG_TAG, "selectLines" + (newSec - oldSec));
+			Log.d(LOG_TAG, "selectLines" + (newSec - oldSec) + "mS");
 			oldSec = newSec;
 		}
 		
@@ -615,7 +580,7 @@ public class WhiteBoardDetect {
 		if(!calcSquare(lineEq, points, img)) return false;
 		if(MyDebug.DEBUG){
 			newSec = System.currentTimeMillis();
-			Log.d(LOG_TAG, "calcSquare" + (newSec - oldSec));
+			Log.d(LOG_TAG, "calcSquare " + (newSec - oldSec) + "mS");
 			oldSec = newSec;
 		}
 
@@ -665,11 +630,8 @@ public class WhiteBoardDetect {
 		private boolean mIsOK = false;
 		private double mLength = 0.0;				//線分の長さ
 		private double mAngle = 0.0;				//線分の傾き 0～PI
-		private double mSectionX = Double.MAX_VALUE;//X軸との切片　X軸と平行に近い場合はMAX_VALUEのまま
-		private double mSectionY = Double.MAX_VALUE;//Y軸との切片 	Y軸と平行に近い場合はMAX_VALUEのまま
 		private int mLocationFlg;					//角度と切片とで2x2にクラス分けした時のクラスを表すフラグ
 		private boolean mIsSteep;					//45度より急の場合はtrue
-
 
 		/**
 		 * 画面中央縦横半分の菱形領域を通る直線はNGとして判断する
@@ -709,20 +671,6 @@ public class WhiteBoardDetect {
 			mAngle = Math.atan2(vecY, vecX);
 			while(mAngle >= Math.PI) mAngle -= Math.PI;
 			while(mAngle < 0.0) mAngle += Math.PI;
-			if(absVecX > absVecY/10.0){//傾きが急過ぎない場合はY切片を計算しておく
-				mSectionY = mEnd.y - mEnd.x*vecY/vecX;
-			}
-			else{
-				mSectionY = Double.MAX_VALUE;
-			}
-			if(absVecX < absVecY*10.0){//傾きが緩過ぎない場合はX切片を計算しておく
-				mSectionX = mEnd.x - mEnd.y*vecX/vecY;
-			}
-			else{
-				mSectionX = Double.MAX_VALUE;
-			}
-			if(mSectionX == Double.MAX_VALUE && mSectionY == Double.MAX_VALUE) return;
-			
 			
 			//傾きが45度より急かどうか
 			mIsSteep = absVecX < absVecY;
@@ -768,7 +716,6 @@ public class WhiteBoardDetect {
 			li.mStart.y = mStart.y;
 			li.mEnd.x = mEnd.x;
 			li.mEnd.y = mEnd.y;
-			
 
 			return li;
 		}
