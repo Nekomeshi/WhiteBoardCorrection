@@ -154,10 +154,9 @@ public final class R {
 		public static final int image_format_nuknown = 0x7f050065;
 		public static final int scene_mode_portrait = 0x7f050075;
 		public static final int flash_mode_off = 0x7f050052;
-		public static final int string_preview_frame_rate_summary = 0x7f0500ae;
 		public static final int anti_banding_off = 0x7f05003e;
 		public static final int flash_mode_title = 0x7f05004e;
-		public static final int preview_frame_rate_summary = 0x7f0500b2;
+		public static final int preview_frame_rate_summary = 0x7f0500ae;
 		public static final int jpeg_thumbnail_quality_title = 0x7f0500a4;
 		public static final int preview_fps_range_summary = 0x7f0500b1;
 		public static final int jpeg_thumbnail_quality_summary = 0x7f0500a5;

@@ -63,10 +63,5 @@
     <!-- setting-->		
     <string name="pref_resolution_key">"resolution_key"</string>
     <string name="pref_aspect_width_key">"aspect_width_key"</string>
-    <string name="pref_aspect_height_key">"aspect_height_key"</string>
-	
-	 <string-array name="action_list">
-        <item>FilterMode</item>
-        <item>Non-FilterMode</item>
-	</string-array>
+    <string name="pref_aspect_height_key">"aspect_height_key"</string>	
 </resources>

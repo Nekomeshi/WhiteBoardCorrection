@@ -39,7 +39,7 @@
     <string name="menu_settings">"設定"</string>
     <string name="menu_load_and_correct">"ファイルから補正"</string>
     <string name="menu_image_check">"画像確認"</string>
-    <string name="menu_about">"WhiteBoardCorrectionについて"</string>
+    <string name="menu_about">"まっすぐ白板について"</string>
 	<string name="menu_shutter_button">"シャッター"</string>
 	<string name="menu_resolution_select">"出力解像度"</string>
 	<string name="menu_resolution_explanation">"出力する画像の横幅を選択してください"</string>

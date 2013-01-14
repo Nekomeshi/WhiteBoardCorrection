@@ -8,9 +8,6 @@
 package com.nekomeshi312.whiteboardcorrection;
 
 public final class R {
-    public static final class array {
-        public static final int action_list=0x7f0b0000;
-    }
     public static final class attr {
         /**  Custom divider drawable to use for elements in the action bar. 
          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
@@ -1186,9 +1183,9 @@ containing a value of this type.
         public static final int tab_view=0x7f030023;
     }
     public static final class menu {
-        public static final int activity_camera_function_check=0x7f0c0000;
-        public static final int fragment_camera_view=0x7f0c0001;
-        public static final int fragment_whiteboard_check=0x7f0c0002;
+        public static final int activity_camera_function_check=0x7f0b0000;
+        public static final int fragment_camera_view=0x7f0b0001;
+        public static final int fragment_whiteboard_check=0x7f0b0002;
     }
     public static final class string {
         public static final int SDCardBadRemoval=0x7f050004;
@@ -1201,14 +1198,14 @@ containing a value of this type.
         public static final int SDCardUnMountable=0x7f050007;
         public static final int SDCardUnMounted=0x7f050008;
         public static final int SDCardUnknownError=0x7f050009;
-        public static final int about_copyright=0x7f0500cb;
+        public static final int about_copyright=0x7f0500ca;
         /**  About Dialog 
  About Dialog 
          */
-        public static final int about_dialog_wait=0x7f0500c8;
-        public static final int about_download_url=0x7f0500cc;
-        public static final int about_tab_app=0x7f0500ca;
-        public static final int about_tab_license=0x7f0500c9;
+        public static final int about_dialog_wait=0x7f0500c7;
+        public static final int about_download_url=0x7f0500cb;
+        public static final int about_tab_app=0x7f0500c9;
+        public static final int about_tab_license=0x7f0500c8;
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
          */
         public static final int abs__action_bar_home_description=0x7f05000a;
@@ -1262,8 +1259,8 @@ containing a value of this type.
         public static final int anti_banding_off=0x7f05003e;
         public static final int anti_banding_summary=0x7f05003a;
         public static final int anti_banding_title=0x7f050039;
-        public static final int app_name=0x7f0500b3;
-        public static final int aspect_dlg_title=0x7f0500c5;
+        public static final int app_name=0x7f0500b2;
+        public static final int aspect_dlg_title=0x7f0500c4;
         public static final int auto_white_balance_lock_summary=0x7f0500ab;
         public static final int auto_white_balance_lock_title=0x7f0500aa;
         public static final int color_effect_aqua=0x7f050043;
@@ -1279,18 +1276,18 @@ containing a value of this type.
         public static final int color_effect_summary=0x7f050042;
         public static final int color_effect_title=0x7f050041;
         public static final int color_effect_whiteboard=0x7f05004b;
-        public static final int error_msg_cant_create_data_folder=0x7f0500be;
+        public static final int error_msg_cant_create_data_folder=0x7f0500bd;
         /**  error message 
  error message 
          */
-        public static final int error_msg_cant_detect_wb=0x7f0500bb;
-        public static final int error_msg_cant_focus=0x7f0500bd;
-        public static final int error_msg_cant_load_image_file=0x7f0500c1;
-        public static final int error_msg_cant_open_camera=0x7f0500bc;
-        public static final int error_msg_cant_open_captuer_image=0x7f0500bf;
-        public static final int error_msg_cant_save_image_file=0x7f0500c2;
-        public static final int error_msg_saved_file_info=0x7f0500c0;
-        public static final int error_msg_warp_out_of_memory=0x7f0500c3;
+        public static final int error_msg_cant_detect_wb=0x7f0500ba;
+        public static final int error_msg_cant_focus=0x7f0500bc;
+        public static final int error_msg_cant_load_image_file=0x7f0500c0;
+        public static final int error_msg_cant_open_camera=0x7f0500bb;
+        public static final int error_msg_cant_open_captuer_image=0x7f0500be;
+        public static final int error_msg_cant_save_image_file=0x7f0500c1;
+        public static final int error_msg_saved_file_info=0x7f0500bf;
+        public static final int error_msg_warp_out_of_memory=0x7f0500c2;
         public static final int exposure_compensation_dialog_title=0x7f050097;
         public static final int exposure_compensation_summary=0x7f050099;
         public static final int exposure_compensation_title=0x7f050098;
@@ -1316,7 +1313,7 @@ containing a value of this type.
         public static final int focus_mode_macro=0x7f05005f;
         public static final int focus_mode_summary=0x7f050058;
         public static final int focus_mode_title=0x7f050057;
-        public static final int hello_world=0x7f0500b4;
+        public static final int hello_world=0x7f0500b3;
         public static final int image_foramt_nv21=0x7f050063;
         public static final int image_format_jpeg=0x7f050061;
         public static final int image_format_nuknown=0x7f050065;
@@ -1333,7 +1330,7 @@ containing a value of this type.
         public static final int jpeg_thumbnail_size_dialog_title=0x7f05008e;
         public static final int jpeg_thumbnail_size_summary=0x7f050090;
         public static final int jpeg_thumbnail_size_title=0x7f05008f;
-        public static final int keep_out_area_msg=0x7f0500b7;
+        public static final int keep_out_area_msg=0x7f0500b6;
         public static final int mAntibanding=0x7f05001b;
         public static final int mAutoWhiteBalanceLock=0x7f05002d;
         /**  SharedPreference Key(CameraSetting) 
@@ -1361,48 +1358,48 @@ containing a value of this type.
         public static final int mVideoStabilization=0x7f05002c;
         public static final int mWhiteBalance=0x7f050024;
         public static final int mZoom=0x7f050025;
-        public static final int menu_about=0x7f0500d0;
-        public static final int menu_area_confirm=0x7f0500e3;
-        public static final int menu_aspect_16_10=0x7f0500de;
-        public static final int menu_aspect_16_9=0x7f0500df;
-        public static final int menu_aspect_2_1=0x7f0500e0;
-        public static final int menu_aspect_3_2=0x7f0500dd;
-        public static final int menu_aspect_4_3=0x7f0500dc;
-        public static final int menu_aspect_explanation=0x7f0500da;
-        public static final int menu_aspect_other=0x7f0500e1;
-        public static final int menu_aspect_other_format=0x7f0500e2;
-        public static final int menu_aspect_select=0x7f0500d9;
-        public static final int menu_aspect_title_format=0x7f0500db;
-        public static final int menu_image_check=0x7f0500cf;
-        public static final int menu_load_and_correct=0x7f0500ce;
-        public static final int menu_resolution_1024=0x7f0500d7;
-        public static final int menu_resolution_1280=0x7f0500d6;
-        public static final int menu_resolution_1920=0x7f0500d5;
-        public static final int menu_resolution_640=0x7f0500d8;
-        public static final int menu_resolution_explanation=0x7f0500d3;
-        public static final int menu_resolution_select=0x7f0500d2;
-        public static final int menu_resolution_title_format=0x7f0500d4;
+        public static final int menu_about=0x7f0500cf;
+        public static final int menu_area_confirm=0x7f0500e2;
+        public static final int menu_aspect_16_10=0x7f0500dd;
+        public static final int menu_aspect_16_9=0x7f0500de;
+        public static final int menu_aspect_2_1=0x7f0500df;
+        public static final int menu_aspect_3_2=0x7f0500dc;
+        public static final int menu_aspect_4_3=0x7f0500db;
+        public static final int menu_aspect_explanation=0x7f0500d9;
+        public static final int menu_aspect_other=0x7f0500e0;
+        public static final int menu_aspect_other_format=0x7f0500e1;
+        public static final int menu_aspect_select=0x7f0500d8;
+        public static final int menu_aspect_title_format=0x7f0500da;
+        public static final int menu_image_check=0x7f0500ce;
+        public static final int menu_load_and_correct=0x7f0500cd;
+        public static final int menu_resolution_1024=0x7f0500d6;
+        public static final int menu_resolution_1280=0x7f0500d5;
+        public static final int menu_resolution_1920=0x7f0500d4;
+        public static final int menu_resolution_640=0x7f0500d7;
+        public static final int menu_resolution_explanation=0x7f0500d2;
+        public static final int menu_resolution_select=0x7f0500d1;
+        public static final int menu_resolution_title_format=0x7f0500d3;
         /**  option menu 
  option menu 
          */
-        public static final int menu_settings=0x7f0500cd;
-        public static final int menu_shutter_button=0x7f0500d1;
+        public static final int menu_settings=0x7f0500cc;
+        public static final int menu_shutter_button=0x7f0500d0;
         public static final int not_supported=0x7f050019;
-        public static final int picture_base_name=0x7f0500b9;
-        public static final int picture_folder_base_name=0x7f0500b8;
+        public static final int picture_base_name=0x7f0500b8;
+        public static final int picture_folder_base_name=0x7f0500b7;
         public static final int picture_format_dialog_title=0x7f05009d;
         public static final int picture_format_summary=0x7f05009f;
         public static final int picture_format_title=0x7f05009e;
         public static final int picture_size_dialog_title=0x7f050088;
         public static final int picture_size_summary=0x7f05008a;
         public static final int picture_size_title=0x7f050089;
-        public static final int picture_warped_name=0x7f0500ba;
-        public static final int pref_aspect_height_key=0x7f0500e6;
-        public static final int pref_aspect_width_key=0x7f0500e5;
+        public static final int picture_warped_name=0x7f0500b9;
+        public static final int pref_aspect_height_key=0x7f0500e5;
+        public static final int pref_aspect_width_key=0x7f0500e4;
         /**  setting
  setting
          */
-        public static final int pref_resolution_key=0x7f0500e4;
+        public static final int pref_resolution_key=0x7f0500e3;
         public static final int preview_format_dialog_title=0x7f0500a0;
         public static final int preview_format_summary=0x7f0500a2;
         public static final int preview_format_title=0x7f0500a1;
@@ -1410,12 +1407,12 @@ containing a value of this type.
         public static final int preview_fps_range_summary=0x7f0500b1;
         public static final int preview_fps_range_title=0x7f0500b0;
         public static final int preview_frame_rate_dialog_title=0x7f0500ac;
-        public static final int preview_frame_rate_summary=0x7f0500b2;
+        public static final int preview_frame_rate_summary=0x7f0500ae;
         public static final int preview_frame_rate_title=0x7f0500ad;
         public static final int preview_size_dialog_title=0x7f05008b;
         public static final int preview_size_summary=0x7f05008d;
         public static final int preview_size_title=0x7f05008c;
-        public static final int save_as_following_name=0x7f0500c7;
+        public static final int save_as_following_name=0x7f0500c6;
         public static final int scene_mode_action=0x7f05006b;
         public static final int scene_mode_auto=0x7f05006c;
         public static final int scene_mode_barcode=0x7f05006d;
@@ -1445,15 +1442,14 @@ containing a value of this type.
         public static final int setting_info=0x7f050032;
         public static final int setting_name=0x7f050037;
         public static final int setting_no_info_pref_title=0x7f050036;
-        public static final int starting_camera=0x7f0500b6;
-        public static final int string_preview_frame_rate_summary=0x7f0500ae;
-        public static final int title_activity_white_board_correction=0x7f0500b5;
+        public static final int starting_camera=0x7f0500b5;
+        public static final int title_activity_white_board_correction=0x7f0500b4;
         public static final int video_size_dialog_title=0x7f050091;
         public static final int video_size_summary=0x7f050093;
         public static final int video_size_title=0x7f050092;
         public static final int video_stabilization_summary=0x7f0500a9;
         public static final int video_stabilization_title=0x7f0500a8;
-        public static final int warp_check_dlg_title=0x7f0500c6;
+        public static final int warp_check_dlg_title=0x7f0500c5;
         public static final int white_balance_auto=0x7f05007f;
         public static final int white_balance_cloudy_daylight=0x7f050080;
         public static final int white_balance_daylight=0x7f050081;
@@ -1469,7 +1465,7 @@ containing a value of this type.
         /**  whiteboard check activity 
  whiteboard check activity 
          */
-        public static final int white_board_check_canceled=0x7f0500c4;
+        public static final int white_board_check_canceled=0x7f0500c3;
         public static final int zoom_dialog_title=0x7f050094;
         public static final int zoom_summary=0x7f050096;
         public static final int zoom_title=0x7f050095;
