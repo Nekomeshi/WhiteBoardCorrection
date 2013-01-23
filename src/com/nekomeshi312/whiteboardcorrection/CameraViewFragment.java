@@ -179,7 +179,7 @@ public class CameraViewFragment extends SherlockFragment
 		// TODO Auto-generated method stub
 		super.onDestroyView();
 		Log.i(LOG_TAG, "onDestroyView");
-		if(!mCameraSettingPrefOpen){
+		if(!mCameraSettingPrefOpen && mCameraSetting.isCameraOpen()){
 			mCameraSetting.releaseCamera();
 		}
 	}
@@ -208,7 +208,9 @@ public class CameraViewFragment extends SherlockFragment
 			public void onGlobalLayout() {
 				// TODO Auto-generated method stub
 				if(mBaseWidth == -1){
-					fitChildSize2CamSize();
+					if(mCameraSetting.isCameraOpen()){
+						fitChildSize2CamSize();
+					}
 				}
 			}
 		});
@@ -223,7 +225,9 @@ public class CameraViewFragment extends SherlockFragment
 		if(MyDebug.DEBUG)Log.d(LOG_TAG, "onPause");
 
 		super.onPause();
-		stopPreview();
+		if(mCameraSetting.isCameraOpen()){
+			stopPreview();
+		}
 		
 	}
 
@@ -236,7 +240,9 @@ public class CameraViewFragment extends SherlockFragment
 		if(MyDebug.DEBUG)Log.d(LOG_TAG, "onResume");
 
 		super.onResume();
-		startPreview();
+		if(mCameraSetting.isCameraOpen()){
+			startPreview();
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -298,7 +304,9 @@ public class CameraViewFragment extends SherlockFragment
 		switch(requestCode){
 			case ACTIVIY_REQUEST_CAMERA_SETTING_PREF:
 				mCameraSettingPrefOpen = false;
-				fitChildSize2CamSize();
+				if(mCameraSetting.isCameraOpen()){
+					fitChildSize2CamSize();
+				}
 				break;
 			case ACTIVIY_REQUEST_GALLERY_FILE_SELECT:
 				if(data == null) break;
@@ -351,6 +359,8 @@ public class CameraViewFragment extends SherlockFragment
 	}	
 
 	private void fitChildSize2CamSize(){
+		if(!mCameraSetting.isCameraOpen()) return;
+		
 		final View viewBase = (View)mParentActivity.findViewById(R.id.camera_view_base);
 		final int w = viewBase.getWidth();
 		final int h = viewBase.getHeight();
@@ -475,6 +485,8 @@ public class CameraViewFragment extends SherlockFragment
 	
 	
 	private void setPreviewCallback(){
+		if(!mCameraSetting.isCameraOpen()) return;
+
 		final Camera camera = mCameraSetting.getCamera();
 		//カメラの色深度を取得 bit/pixel
 		PixelFormat pixelinfo = new PixelFormat();
@@ -571,6 +583,8 @@ public class CameraViewFragment extends SherlockFragment
 		@Override
 		protected Boolean doInBackground(Integer... params) {
 			// TODO Auto-generated method stub
+			if(!mCameraSetting.isCameraOpen()) return false;
+
 			final int width = params[0];
 			final int height = params[1];
 			if(MyDebug.DEBUG)Log.d(LOG_TAG, "wh = " + width + ":" + height + " mCameraSurfaceView = " + mCameraSurfaceViewWidth + ":" + mCameraSurfaceViewHeight);
@@ -619,6 +633,8 @@ public class CameraViewFragment extends SherlockFragment
 	private boolean startPreview(int width, int height) {
 		// TODO Auto-generated method stub
 		if(width < 0 || height < 0) return false;
+		if(!mCameraSetting.isCameraOpen()) return false;
+
 		StartPreviewAsyncTask prev = new StartPreviewAsyncTask();
 		prev.execute(width, height);
 		return true;
