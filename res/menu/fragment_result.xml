@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+	<item android:id="@+id/menu_share"
+        android:showAsAction="ifRoom"
+		android:orderInCategory="5"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="share">
+		<menu>
+		    <item android:id="@+id/menu_beam"
+        		android:title="@string/menu_beam"
+        		android:orderInCategory="10"/>
+    		<item android:id="@+id/menu_evernote"
+        		android:title="@string/menu_evernote"
+        		android:orderInCategory="20"/>
+    		<item android:id="@+id/menu_mail"
+    		    android:title="@string/menu_mail"
+    		    android:orderInCategory="30"/>
+		</menu>
+	</item>
+    
+    
+    <item android:id="@+id/menu_beam_setup"
+        android:title="@string/menu_beam_setup"
+        android:orderInCategory="100"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:showAsAction="never" />
+    <item android:id="@+id/menu_evernote_setup"
+        android:title="@string/menu_evernote_setup"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:orderInCategory="110"
+        android:showAsAction="never" />
+</menu>

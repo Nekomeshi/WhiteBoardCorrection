@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  	xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:switchpref="http://schemas.android.com/apk/res-auto" >
+	<org.jraf.android.backport.switchwidget.SwitchPreference
+       	android:key="@string/pref_evernote_login_key"
+		android:summary="@string/evernote_not_loggedin"
+       	android:title="@string/evernote_setting_login"
+        android:switchTextOff="NO"
+   	    android:switchTextOn="YES"/>
+	<EditTextPreference 
+	    android:key="@string/pref_evernote_tag_key"
+	    android:summary="@string/evernote_tag_summary"
+	    android:title="@string/evernote_tag_title"
+	    android:defaultValue=""/>
+	<ListPreference
+	    android:key="@string/pref_evernote_notebook_list_key"
+	    android:title="@string/evernote_notebook_title"
+	    android:summary="summary"
+	    android:entries="@array/temp_entries"
+	    android:entryValues="@array/temp_entry_values"
+	    android:dialogTitle="@string/evernote_notebook_title"/>
+</PreferenceScreen>

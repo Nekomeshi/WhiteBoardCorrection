@@ -10,7 +10,8 @@
 	<string name="picture_base_name">"DSC_"</string>
 	<string name="picture_warped_name">"WARP"</string>
 	<string name="starting_camera">"撮影準備中です"</string>
-			
+	<string name="wait_a_minute">"しばらくお待ち下さい..."</string>
+				
 	<!-- error message -->
     <string name="error_msg_cant_detect_wb">"ホワイトボードが検出できません"</string>
 	<string name="error_msg_cant_open_camera">"カメラをオープンできません"</string>
@@ -21,20 +22,60 @@
 	<string name="error_msg_cant_load_image_file">"画像の読み込みに失敗しました"</string>
 	<string name="error_msg_cant_save_image_file">"補正画像が保存できませんでした."</string>
 	<string name="error_msg_warp_out_of_memory">"メモリが足りません.\n出力画像の解像度を下げて再度実行してください."</string>
+	<string name="error_msg_warp_file_not_found">"補正画像が見つかりません."</string>
 	
-	<!-- whiteboard check activity -->
+	<string name="error_msg_evernote_listing_notebooks">"Notebookのリストが取得出来ませんでした。"</string>
+    <string name="error_msg_evernote_creating_notestore">"Note Storeが作成できませんでした。"</string>
+    <string name="error_msg_evernote_saving_note">"Noteの保存に失敗しました"</string>
+    <string name="error_msg_evernote_receiving_default_note">"DefaultのNotebookを取得出来ませんでした."</string>
+    	
+    <!-- whiteboard check activity -->
 	<string name="white_board_check_canceled">"キャンセルされました"</string>
 	<string name="aspect_dlg_title">"出力画像の縦横比を入力してください"</string>
 	<string name="warp_check_dlg_title">"この補正で良いですか？"</string>								
 	<string name="save_as_following_name">"補正された画像は次のファイル名で保存されました:\n"</string>
 		
 	<!-- About Dialog -->
-	<string name="about_dialog_wait">"お待ちください"</string>
 	<string name="about_tab_license">"ライセンス"</string>
 	<string name="about_tab_app">"About"</string>
 	<string name="about_copyright">"%1$s\nVersion: %2$s\n\n(c)Copyright Nekomeshi. All rights reserverd.\n\n本アプリはAGPLライセンスに基づき作成されています。ソースコードは以下のURLより入手可能です。\n%3$s"</string>
 	<string name="about_download_url">"https://github.com/Nekomeshi/WhiteBoardCorrection.git"</string>			
 	
+	<!-- result fragment -->
+	<string name="button_result_retry">やり直し</string>
+	<string name="button_result_complete">完了</string>
+	
+		
+	<!-- beam dialog -->
+	<string name="beam_cancel">"Beam 中止"</string>
+	<string name="beam_title">"Beamで送信"</string>
+	<string name="beam_message">"端末の背面同士を近づけてください"</string>
+	<string name="beam_complete_message">"送信が完了しました。受信が完了するまでしばらくお待ちください。"</string>
+	<string name="nfc_switch_off">"NFCが無効になっています。設定を変更してください"</string>
+	<string name="beam_switch_off">"Beamが無効になっています。設定を変更してください"</string>
+			
+	<!-- Evernote -->
+	<string name="evernote_setting_title">"Evernote 設定"</string>
+	<string name="evernote_setting_login">"ログイン"</string>
+	<string name="evernote_not_loggedin">"Evernoteにログインしてください"</string>
+	<string name="evernote_note_saving_in_progress">"Note保存中"</string>
+	<string name="evernote_note_saving_complete">"Notoの保存が完了しました。"</string>
+   	<string name="evernote_tag_summary">"複数のタグを設定する場合は ' ; ' を挿入してください。"</string>
+	<string name="evernote_tag_title">"タグ"</string>
+	
+	<string name="evernote_receiving_notebook_list">"Notebookの一覧を取得しています"</string>
+	<string name="evernote_error_receiving_notebook_list">"Notebookの一覧が取得できませんでした"</string>
+	<string name="evernote_receiving_default_notebook">"デフォルトのNotebookを取得しています"</string>
+	<string name="evernote_error_receiving_default_notebook">"デフォルトのNotebookが取得できませんでした"</string>
+	<string name="evernote_chose_notebook">"保存するNotebookを選択してください"</string>
+	<string name="evernote_notebook_title">"Notebook"</string>
+						
+	<!-- e-mail -->
+   	<string name="e_mail_body">WhiteBoardCorrectionの出力結果をお送りします</string>
+   	<string name="e_mail_subject">WhiteBoardCorrection</string>
+   	<string name="e_mail_chooser">メーラを選択してください</string>
+   	<string name="e_mail_completed">"メールの送信が完了しました。"</string>
+   		
 	<!-- option menu -->
     <string name="menu_settings">"設定"</string>
     <string name="menu_load_and_correct">"ファイルから補正"</string>
@@ -58,12 +99,20 @@
 	<string name="menu_aspect_2_1">"2:1"</string>
 	<string name="menu_aspect_other">"その他"</string>
 	<string name="menu_aspect_other_format">"その他(%1$d:%2$d)"</string>
-	<string name="menu_area_confirm">"確認"</string>
+	<string name="menu_area_confirm">"結果を確認"</string>
 	
-	
+	<string name="menu_beam">"Beam"</string>
+	<string name="menu_beam_setup">"Beam設定"</string>
+	<string name="menu_evernote">"Evernote"</string>
+	<string name="menu_evernote_setup">"Evernote設定"</string>
+	<string name="menu_mail">"E-mail"</string>
+				
     <!-- setting-->		
     <string name="pref_resolution_key">"resolution_key"</string>
     <string name="pref_aspect_width_key">"aspect_width_key"</string>
     <string name="pref_aspect_height_key">"aspect_height_key"</string>
-		
+
+    <string name="pref_evernote_login_key">"evernote_login_key"</string>
+    <string name="pref_evernote_tag_key">"pref_evernote_tag_key"</string>
+    <string name="pref_evernote_notebook_list_key">"pref_evernote_notebook_list_key"</string>
 </resources>

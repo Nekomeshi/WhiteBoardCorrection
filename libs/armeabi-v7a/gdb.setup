@@ -1,2 +1,0 @@
-set solib-search-path ./obj/local/armeabi-v7a
-directory C:/cygwin/home/masaki/android-ndk-r8d/platforms/android-8/arch-arm/usr/include C:/cygwin/home/masaki/OpenCV-2.4.3.1-android-sdk/sdk/native/jni/include/opencv C:/cygwin/home/masaki/OpenCV-2.4.3.1-android-sdk/sdk/native/jni/include C:/cygwin/home/masaki/android-ndk-r8d/sources/cxx-stl/gnu-libstdc++/4.6/include C:/cygwin/home/masaki/android-ndk-r8d/sources/cxx-stl/gnu-libstdc++/4.6/libs/armeabi-v7a/include

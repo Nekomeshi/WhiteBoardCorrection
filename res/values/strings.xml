@@ -11,7 +11,8 @@
 	<string name="picture_folder_base_name">"WBCRN"</string>
 	<string name="picture_base_name">"DSC_"</string>
 	<string name="picture_warped_name">"WARP"</string>
-			
+	<string name="wait_a_minute">"Wait a minute...."</string>
+				
 	<!-- error message -->
 	<string name="error_msg_cant_detect_wb">"Can't detect whiteboard."</string>
 	<string name="error_msg_cant_open_camera">"Can't open camera."</string>
@@ -22,20 +23,57 @@
 	<string name="error_msg_cant_load_image_file">"Can't load captured image file."</string>
 	<string name="error_msg_cant_save_image_file">"Can't save warped image file."</string>
 	<string name="error_msg_warp_out_of_memory">"No enough memory.\nReduse the output resolution and try again."</string>
-			
+	<string name="error_msg_warp_file_not_found">"Can't find warped image file."</string>
+	
+    <string name="error_msg_evernote_listing_notebooks">Error listing notebooks</string>
+    <string name="error_msg_evernote_creating_notestore">Error creating notestore</string>
+    <string name="error_msg_evernote_saving_note">Error saving note</string>
+    <string name="error_msg_evernote_receiving_default_note">"Error receiving default notebook."</string>
+    					
 	<!-- whiteboard check activity -->
 	<string name="white_board_check_canceled">"Canceled"</string>
 	<string name="aspect_dlg_title">"Chose aspect of ouput image."</string>
 	<string name="warp_check_dlg_title">"Are you good at this correction?"</string>	
 	<string name="save_as_following_name">"Saved corrected image as following name:\n"</string>
 	<!-- About Dialog -->
-	<string name="about_dialog_wait">"Please wait"</string>
 	<string name="about_tab_license">"AGPL License"</string>
 	<string name="about_tab_app">"About"</string>
 	<string name="about_copyright">"%1$s\nVersion: %2$s\n\n(c)Copyright Nekomeshi. All rights reserverd.\n\nThis app use AGPL license. Source codes are available from following URL:%3$s"</string>
 	<string name="about_download_url">"https://github.com/Nekomeshi/WhiteBoardCorrection.git"</string>			
 
-		<!-- option menu -->
+	<!-- result fragment -->
+	<string name="button_result_retry">"Retry"</string>
+	<string name="button_result_complete">"Complete"</string>
+			
+	<!-- beam dialog -->
+	<string name="beam_cancel">"Cancel"</string>
+	<string name="beam_title">"Send by Beem"</string>
+	<string name="beam_message">"Bring the devices together."</string>
+	<string name="beam_complete_message">"Sending completed. Please wait to completed receiving."</string>
+	<string name="nfc_switch_off">"NFC is not enabled. Please change setting."</string>
+	<string name="beam_switch_off">"Beam is not enabled. Please change setting."</string>
+	
+	<!-- Evernote -->
+	<string name="evernote_setting_title">"Evernote Setting"</string>
+	<string name="evernote_setting_login">"Login to Evernote"</string>
+	<string name="evernote_not_loggedin">"Login to Evernote"</string>
+	<string name="evernote_note_saving_in_progress">"Saving in progress."</string>
+	<string name="evernote_note_saving_complete">"Saving completed."</string>
+   	<string name="evernote_tag_summary">"Insert ';' to set multiple tags"</string>
+	<string name="evernote_tag_title">"Tag"</string>
+	<string name="evernote_receiving_notebook_list">"Now receiving Notebook list..."</string>
+	<string name="evernote_error_receiving_notebook_list">"Can't receive Notebook list."</string>
+	<string name="evernote_receiving_default_notebook">"Now receiving default Notebook..."</string>
+	<string name="evernote_error_receiving_default_notebook">"Can't receive default Notebook."</string>
+	<string name="evernote_chose_notebook">"Choose notebook to save."</string>
+	<string name="evernote_notebook_title">"Notebook"</string>
+	<!-- e-mail -->
+   	<string name="e_mail_body">"WhiteBoardCorrection image file is attached."</string>
+   	<string name="e_mail_subject">WhiteBoardCorrection</string>
+   	<string name="e_mail_chooser">"Choose mailer"</string>
+   	<string name="e_mail_completed">"Completed."</string>
+   	
+   	<!-- option menu -->
     <string name="menu_settings">Settings</string>
     <string name="menu_load_and_correct">"Load and correct Image"</string>
     <string name="menu_image_check">"Check Image"</string>
@@ -59,9 +97,19 @@
 	<string name="menu_aspect_other">"other"</string>
 	<string name="menu_aspect_other_format">"other(%1$d:%2$d)"</string>
 	<string name="menu_area_confirm">"Confirm"</string>
-				
+
+	<string name="menu_beam">"Beam"</string>
+	<string name="menu_beam_setup">"Setup Beam"</string>
+	<string name="menu_evernote">"Evernote"</string>
+	<string name="menu_evernote_setup">"Setup Evernote"</string>
+	<string name="menu_mail">"E-mail"</string>
+						
     <!-- setting-->		
     <string name="pref_resolution_key">"resolution_key"</string>
     <string name="pref_aspect_width_key">"aspect_width_key"</string>
     <string name="pref_aspect_height_key">"aspect_height_key"</string>	
+
+    <string name="pref_evernote_login_key">"evernote_login_key"</string>
+    <string name="pref_evernote_tag_key">"pref_evernote_tag_key"</string>
+    <string name="pref_evernote_notebook_list_key">"pref_evernote_notebook_list_key"</string>
 </resources>

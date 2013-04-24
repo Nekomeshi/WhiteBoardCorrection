@@ -1,5 +1,8 @@
 <resources>
 
     <style name="AppTheme" parent="android:Theme.Light" />
-
+    <style name="Theme" parent="@android:Theme">
+        <item name="switchStyle">@style/Widget.Holo.CompoundButton.Switch</item>
+        <item name="switchPreferenceStyle">@style/Preference.SwitchPreference</item>
+	</style>
 </resources>

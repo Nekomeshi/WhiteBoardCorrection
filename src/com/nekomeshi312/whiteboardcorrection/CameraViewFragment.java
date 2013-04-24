@@ -447,7 +447,7 @@ public class CameraViewFragment extends SherlockFragment
 	    //直線検出
 	    
 	    int lineNum = mLineDetector.lineDetect(mMatYuv, true,  mMatRgba, mLines);
-		Log.d(LOG_TAG, "line Num = " + lineNum);
+		if(MyDebug.DEBUG)Log.d(LOG_TAG, "line Num = " + lineNum);
 	
 		//ホワイトボードの4点座標を計算
 		ArrayList<Point> points = new ArrayList<Point>();

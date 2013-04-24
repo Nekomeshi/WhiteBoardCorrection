@@ -8,16 +8,16 @@ package com.nekomeshi312.checksdlib;
 
 public final class R {
 	public static final class string {
-		public static final int SDCardShared = 0x7f050003;
-		public static final int SDCardUnMounted = 0x7f050008;
-		public static final int SDCardMounted = 0x7f050000;
-		public static final int SDCardChecking = 0x7f050005;
-		public static final int SDCardReadOnly = 0x7f050001;
-		public static final int SDCardUnknownError = 0x7f050009;
-		public static final int SDCardNOFS = 0x7f050006;
-		public static final int SDCardRemoved = 0x7f050002;
-		public static final int SDCardUnMountable = 0x7f050007;
-		public static final int SDCardBadRemoval = 0x7f050004;
+		public static final int SDCardShared = 0x7f06000c;
+		public static final int SDCardUnMounted = 0x7f060011;
+		public static final int SDCardMounted = 0x7f060009;
+		public static final int SDCardChecking = 0x7f06000e;
+		public static final int SDCardReadOnly = 0x7f06000a;
+		public static final int SDCardUnknownError = 0x7f060012;
+		public static final int SDCardNOFS = 0x7f06000f;
+		public static final int SDCardRemoved = 0x7f06000b;
+		public static final int SDCardUnMountable = 0x7f060010;
+		public static final int SDCardBadRemoval = 0x7f06000d;
 	}
 	public static final class drawable {
 		public static final int icon = 0x7f020076;

@@ -64,6 +64,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -79,7 +80,7 @@ import com.nekomeshi312.uitools.NumberPicker2;
 
 public class WhiteBoardCheckFragment extends SherlockFragment{
 	public interface WhiteBoardCheckCallback{
-		public void onWhiteBoardCorrectionCompleted();
+		public void onWhiteBoardCheckOK(String warpName);
 	}
 
 	private static final String TAG_FRAGMENT = "tag";
@@ -117,27 +118,21 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 	private String mMyTag = null;
 	
 	public static WhiteBoardCheckFragment newInstance(String tag, 
-														String path, 
-														String name, 
-														int width, 
-														int height, 
-														int prevWidth, 
-														int prevHeight, 
-														ArrayList<Point> detectedPoints) {
+														WhiteBoardCheckInfo checkInfo) {
 		WhiteBoardCheckFragment frag = new WhiteBoardCheckFragment();
         Bundle args = new Bundle();
         args.putString(TAG_FRAGMENT, tag);
-        args.putString(TAG_FILE_PATH, path);
-		args.putString(TAG_FILE_NAME, name);
-		args.putInt(TAG_WIDTH, width);
-		args.putInt(TAG_HEIGHT, height);
-		args.putInt(TAG_PREV_WIDTH, prevWidth);
-		args.putInt(TAG_PREV_HEIGHT, prevHeight);
-		if(detectedPoints != null){
+        args.putString(TAG_FILE_PATH, checkInfo.mFilePath);
+		args.putString(TAG_FILE_NAME, checkInfo.mFileName);
+		args.putInt(TAG_WIDTH, checkInfo.mPicWidth);
+		args.putInt(TAG_HEIGHT, checkInfo.mPicHeight);
+		args.putInt(TAG_PREV_WIDTH, checkInfo.mPrevWidth);
+		args.putInt(TAG_PREV_HEIGHT, checkInfo.mPrevHeight);
+		if(checkInfo.mDetectedPoints != null){
 			double [] points = new double[8];
 			for(int i = 0;i < 4;i++){
-				points[i*2 + 0] = detectedPoints.get(i).x;
-				points[i*2 + 1] = detectedPoints.get(i).y;
+				points[i*2 + 0] = checkInfo.mDetectedPoints.get(i).x;
+				points[i*2 + 1] = checkInfo.mDetectedPoints.get(i).y;
 			}
 			args.putDoubleArray(TAG_WB_POS, points);
 		}
@@ -443,26 +438,6 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 			return;
 		}
 	}
-	/**
-	 * 指定されたターゲット解像度に近くなるように画像を読み込む
-	 * @param fn 読み込むファイル
-	 * @param targetWidth ターゲット幅
-	 * @param targetHeight　ターゲット高さ
-	 * @return　成功時は読み込まれた画像のBitmap 失敗時はnull
-	 */
-	private static Bitmap loadJpeg(String fn, int targetWidth, int targetHeight){
-		//画像のサイズを先読み
-		BitmapFactory.Options opt = new BitmapFactory.Options();
-		opt.inJustDecodeBounds = true;
-		BitmapFactory.decodeFile(fn, opt);
-		int ww = Math.max((int) ((double)opt.outWidth/(double)targetWidth + 0.5), 1);
-		int hh = Math.max((int) ((double)opt.outHeight/(double)targetHeight + 0.5), 1);
-		//縮小サイズを計算
-		opt.inSampleSize = Math.max(ww, hh);
-		//読み直し
-		opt.inJustDecodeBounds = false;
-		return BitmapFactory.decodeFile(fn, opt);
-	}
 
 	/**
 	 * 選択されたaspect比をプレファレンスに保存する
@@ -554,11 +529,22 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
      *
      */
     public static class WarpResultDlgFragment extends SherlockDialogFragment {
+
+		/* (non-Javadoc)
+		 * @see android.support.v4.app.Fragment#onResume()
+		 */
+		@Override
+		public void onResume() {
+			// TODO Auto-generated method stub
+			super.onResume();
+		}
+
 		private static final String KEY_TAG = "tag";
     	private static final String KEY_AFTER_FILENAME = "afterfn";
     	private static final String KEY_BEFORE_FILENAME = "beforefn";
     	private static final int IMG_SIZE = 200;//dip
-
+    	
+    	
     	private String mBeforeFn = null;
     	private String mAfterFn = null;
     	/**
@@ -591,9 +577,9 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
             LayoutInflater inflater = getActivity().getLayoutInflater();  
             View view = inflater.inflate(R.layout.fragment_warp_result, null, false);  
             ImageView iv = (ImageView)view.findViewById(R.id.image_warp_before);
-            iv.setImageBitmap(loadJpeg(mBeforeFn, imgsize, imgsize));
+            iv.setImageBitmap(MyUtils.loadJpeg(mBeforeFn, imgsize, imgsize));
             iv = (ImageView)view.findViewById(R.id.image_warp_after);
-            iv.setImageBitmap(loadJpeg(mAfterFn, imgsize, imgsize));
+            iv.setImageBitmap(MyUtils.loadJpeg(mAfterFn, imgsize, imgsize));
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
             	.setIcon(R.drawable.ic_launcher)
@@ -606,6 +592,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
             			//warp前の画像ファイルを削除
             			File f = new File(mBeforeFn);
             			f.delete();
+
             			//保存したjpge画像をギャラリーに登録
             			ContentResolver cr = getSherlockActivity().getContentResolver();
             			ContentValues values = new ContentValues();  
@@ -616,18 +603,14 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
             			values.put(Images.Media.MIME_TYPE, "image/jpeg");  
             			values.put(Images.Media.DATA, mAfterFn);  
             			cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);  	
-            			//保存したファイル名をtoastで表示
-            			Toast.makeText(getSherlockActivity(), 
-									getSherlockActivity().getString(R.string.save_as_following_name) + mAfterFn, 
-									Toast.LENGTH_SHORT).show();
+            			
             			//親fragmentのメソッドを呼び出し、処理が完了したことを知らせる
             			WhiteBoardCorrectionActivity activity = (WhiteBoardCorrectionActivity)getSherlockActivity();
             			FragmentManager fm = activity.getSupportFragmentManager();
             			WhiteBoardCheckFragment parentFragment = 
 								(WhiteBoardCheckFragment) fm.findFragmentByTag(tag);
-            			final WhiteBoardCorrectionActivity parentActivity = 
-								(WhiteBoardCorrectionActivity) parentFragment.mParentActivity;
-            			parentActivity.onWhiteBoardCorrectionCompleted();
+            			WhiteBoardCheckCallback callback = (WhiteBoardCheckCallback)parentFragment.mParentActivity;
+            			callback.onWhiteBoardCheckOK(mAfterFn);
             		}
             	})
             	.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -639,9 +622,10 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
             		}
             	})
             	.setCancelable(false);
-
+            
             builder.setView(view);
-            return builder.create();
+            Dialog dlg= builder.create();
+            return dlg;
         }
         /**
          * warp前、warp後両画像のファイルを削除する
@@ -769,7 +753,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 			// TODO Auto-generated method stub
 			super.onPreExecute();
 			mLoadingDialog = new ProgressDialog(mParentActivity);
-			String msg = mParentActivity.getString(R.string.about_dialog_wait);
+			String msg = mParentActivity.getString(R.string.wait_a_minute);
 			mLoadingDialog.setMessage(msg);
 		    // 円スタイル（くるくる回るタイプ）に設定します
 		    mLoadingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -786,7 +770,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 		 */
 		private boolean loadJpegAndCalcTargetAreaSize() throws OutOfMemoryError {
 			try{
-				ArrayList<Point> corners = mWBCorrectionView.getWhiteBoardCorners();
+				final ArrayList<Point> corners = mWBCorrectionView.getWhiteBoardCorners();
 				
 				//ターゲットエリアを囲む矩形領域
 				int rectLeft = Integer.MAX_VALUE;
@@ -802,6 +786,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 				//現在読まれている画像サイズ
 				final int imgWidth = mPicBitmap.getWidth();
 				final int imgHeight = mPicBitmap.getHeight();
+				if(MyDebug.DEBUG)Log.d(LOG_TAG, " imgsize = " + imgWidth + ":" + imgHeight + "   rect = " + rectLeft + "/" + rectTop + "/" + rectRight + "/" + rectBottom);
 				//オリジナルの画像サイズを取得
 				BitmapFactory.Options opt = new BitmapFactory.Options();
 				opt.inJustDecodeBounds = true;
@@ -818,6 +803,11 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 				orgRct.top = (int) (rectTop*ratioH + 0.5);
 				orgRct.bottom = (int) (rectBottom*ratioH + 0.5);
 				
+				if(orgRct.left < 0) orgRct.left = 0;
+				if(orgRct.right >= opt.outWidth)orgRct.right = opt.outWidth-1;
+				if(orgRct.top < 0) orgRct.top = 0;
+				if(orgRct.bottom >= opt.outHeight) orgRct.bottom = opt.outHeight-1;
+
 				//設定されている出力横幅とaspect比から、出力画像の解像度を計算
 				mTargetSize.width = mOutputWidth;
 				mTargetSize.height = (int)((double)mOutputWidth * (double)mOutputAspectHeight/(double)mOutputAspectWidth + 0.5);
@@ -839,11 +829,6 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 				Bitmap bmp = null;
 				BitmapRegionDecoder decoder;
 				try {
-					//jpegの部分読み出し
-					if(orgRct.left < 0) orgRct.left = 0;
-					if(orgRct.right >= opt.outWidth)orgRct.right = opt.outWidth-1;
-					if(orgRct.top < 0) orgRct.top = 0;
-					if(orgRct.bottom >= opt.outHeight) orgRct.bottom = opt.outHeight-1;
 					decoder = BitmapRegionDecoder.newInstance(fn, false);
 					bmp = decoder.decodeRegion(orgRct, opt);
 					//領域の４頂点を、読みだした画像サイズに合うように位置を移動
@@ -1021,7 +1006,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 			// TODO Auto-generated method stub
 			super.onPreExecute();
 			mLoadingDialog = new ProgressDialog(mParentActivity);
-			String msg = mParentActivity.getString(R.string.about_dialog_wait);
+			String msg = mParentActivity.getString(R.string.wait_a_minute);
 			mLoadingDialog.setMessage(msg);
 		    // 円スタイル（くるくる回るタイプ）に設定します
 		    mLoadingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -1077,7 +1062,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 			// TODO Auto-generated method stub
 			//jpegロード
 			final String fn = mFilePath + mFileName;
-			mPicBitmap = loadJpeg(fn, mScreenWidth, mScreenHeight);
+			mPicBitmap = MyUtils.loadJpeg(fn, mScreenWidth, mScreenHeight);
 			if(mPicBitmap == null){
 				publishProgress(PROGRESS_ERROR_CANT_READ_FILE);
 				return null;

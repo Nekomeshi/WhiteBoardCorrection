@@ -47,7 +47,6 @@ import com.actionbarsherlock.view.Window;
 import com.nekomeshi312.cameraandparameters.CameraAndParameters;
 import com.nekomeshi312.checksdlib.SDCardAccess;
 
-import android.media.MediaScannerConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -65,7 +64,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.drawable.ColorDrawable;
 import android.hardware.Camera;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -83,7 +81,9 @@ import android.widget.TextView;
 public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 					implements Camera.PictureCallback,
 								CameraViewFragment.LineDetectCallback,
-								WhiteBoardCheckFragment.WhiteBoardCheckCallback{
+								WhiteBoardCheckFragment.WhiteBoardCheckCallback,
+								WhiteBoardResultFragment.WhiteBoardResultCallback{
+
 
 
 	private static final String LOG_TAG = "WhiteBoardCorrectionActivity";
@@ -97,7 +97,10 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 	private CameraViewFragment mFragCameraView = null;
 	private final String FRAG_WB_CHECK_TAG = "mBoardCheckFragment";
 	private WhiteBoardCheckFragment mBoardCheckFragment = null;
+	private final String FRAG_WB_RESULT_TAG = "mBoardResultFragment";
+	private WhiteBoardResultFragment mBoardResultFragment = null;
 	
+	private WhiteBoardCheckInfo mWhiteBoardCheckInfo = new WhiteBoardCheckInfo();
     private PowerManager.WakeLock mWakeLock = null;
 
 	/* (non-Javadoc)
@@ -133,6 +136,7 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
         FragmentManager fm = getSupportFragmentManager();
         mFragCameraView = (CameraViewFragment) fm.findFragmentByTag(FRAG_CAMERA_VIEW_TAG);
         mBoardCheckFragment =(WhiteBoardCheckFragment) fm.findFragmentByTag(FRAG_WB_CHECK_TAG);
+        mBoardResultFragment = (WhiteBoardResultFragment)fm.findFragmentByTag(FRAG_WB_RESULT_TAG);
     }
     
 	/* (non-Javadoc)
@@ -163,11 +167,7 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 		//viewのサイズが確定してからフラグメントを追加する
 		if(hasFocus){
 			if(mFragCameraView == null || mFragCameraView.isDetached()){
-				mFragCameraView = new CameraViewFragment();
-				FragmentManager fm = getSupportFragmentManager();
-				FragmentTransaction ft = fm.beginTransaction();
-				ft.add(R.id.camera_view_base, mFragCameraView, FRAG_CAMERA_VIEW_TAG);
-				ft.commit();
+				transitToCameraViewFragment();
 				OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
 			}
 		}
@@ -182,7 +182,24 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 		// TODO Auto-generated method stub
 		super.onDestroy();
 	}
-    
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onBackPressed()
+	 */
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
+		if(mFragCameraView.isAdded()){
+			finish();
+		}
+		else{
+			boolean isResultFragAdded = mBoardResultFragment == null ? false:mBoardResultFragment.isAdded();
+			getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+			if(isResultFragAdded){
+				 transitToBoardCheckFragment();
+			}
+		}
+	}
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	getSupportMenuInflater().inflate(R.menu.activity_camera_function_check, menu);
@@ -197,12 +214,8 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 		if(MyDebug.DEBUG) Log.i(LOG_TAG, item.toString());
 		switch(item.getItemId()){
 			case android.R.id.home:
-				if(mBoardCheckFragment != null && mBoardCheckFragment.isAdded()){
-			    	FragmentManager fm = getSupportFragmentManager();
-			    	fm.popBackStack();
-				}
+				getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 				return true;
-
 			case R.id.menu_about:
 				ShowAboutDlgTask task = new ShowAboutDlgTask();
 				task.execute();
@@ -370,7 +383,7 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 		protected void onPreExecute() {
 			// TODO Auto-generated method stub
 			mWaitDialog = new ProgressDialog(WhiteBoardCorrectionActivity.this);
-			String msg = WhiteBoardCorrectionActivity.this.getString(R.string.about_dialog_wait);
+			String msg = WhiteBoardCorrectionActivity.this.getString(R.string.wait_a_minute);
 			mWaitDialog.setMessage(msg);
 		    // 円スタイル（くるくる回るタイプ）に設定します
 		    mWaitDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -610,10 +623,14 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 		values.put(Images.Media.HEIGHT, height);
 		cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);  	
 		
-		transitToBoardCheckFragment(path, name,
-									width, height,
-									prevWidth, prevHeight,
-									mDetectedPoints);
+		mWhiteBoardCheckInfo.mFilePath = path;
+		mWhiteBoardCheckInfo.mFileName = name;
+		mWhiteBoardCheckInfo.mPicWidth = width;
+		mWhiteBoardCheckInfo.mPicHeight = height;
+		mWhiteBoardCheckInfo.mPrevWidth = prevWidth;
+		mWhiteBoardCheckInfo.mPrevHeight = prevHeight;
+		//mWhiteBoardCheckInfo.mDetectedPoints
+		transitToBoardCheckFragment();
 	}
 
 	@Override
@@ -621,26 +638,34 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 		// TODO Auto-generated method stub
 		final String folderBase = getString(R.string.picture_folder_base_name);
 		String path = PictureFolder.createPicturePath(this, folderBase);
-		transitToBoardCheckFragment(path, name,
-									width, height,
-									0, 0,
-									null);
+		mWhiteBoardCheckInfo.mDetectedPoints = null;
+		mWhiteBoardCheckInfo.mFileName = name;
+		mWhiteBoardCheckInfo.mFilePath = path;
+		mWhiteBoardCheckInfo.mPicWidth = width;
+		mWhiteBoardCheckInfo.mPicHeight = height;
+		mWhiteBoardCheckInfo.mPrevHeight = 0;
+		mWhiteBoardCheckInfo.mPrevWidth = 0;
+		transitToBoardCheckFragment();
 	}    
 
-	private void transitToBoardCheckFragment(String path, String name,
-											int width, int height,
-											int prevWidth, int prevHeight,
-											ArrayList<Point>detectedPoints){
+	private void transitToCameraViewFragment(){
+		if(mFragCameraView != null && mFragCameraView.isAdded()) return;
+		
+		mFragCameraView = new CameraViewFragment();
+		FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
+		ft.replace(R.id.camera_view_base, mFragCameraView, FRAG_CAMERA_VIEW_TAG);
+		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+		ft.commit();
+	}
+	
+
+	private void transitToBoardCheckFragment(){
 
 		if(mBoardCheckFragment != null && mBoardCheckFragment.isAdded()) return;
+		
 		mBoardCheckFragment = WhiteBoardCheckFragment.newInstance(FRAG_WB_CHECK_TAG, 
-																path, 
-																name, 
-																width, 
-																height,
-																prevWidth, 
-																prevHeight, 
-																detectedPoints);
+																mWhiteBoardCheckInfo);
 		FragmentManager fm = getSupportFragmentManager();
 		FragmentTransaction ft = fm.beginTransaction();
 		ft.replace(R.id.camera_view_base, mBoardCheckFragment, FRAG_WB_CHECK_TAG);
@@ -649,17 +674,42 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 		ft.addToBackStack(null);
 		ft.commit();
 	}
-	private ArrayList<Point> mDetectedPoints = null;
-	@Override
-	public void onLineDetected(ArrayList<Point> points) {
-		// TODO Auto-generated method stub
-		mDetectedPoints = points;
+	private void transitToBoardResultFragment(String warpedFile){
+		
+		mBoardResultFragment = WhiteBoardResultFragment.newInstance(FRAG_WB_RESULT_TAG, 
+																	warpedFile);
+		FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
+		ft.replace(R.id.camera_view_base, mBoardResultFragment, FRAG_WB_RESULT_TAG);
+		// Fragmentの変化時のアニメーションを指定
+		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+		ft.addToBackStack(null);
+		ft.commit();
+		
 	}
 
 	@Override
-	public void onWhiteBoardCorrectionCompleted() {
+	public void onLineDetected(ArrayList<Point> points) {
 		// TODO Auto-generated method stub
-		FragmentManager fm = getSupportFragmentManager();
-    	fm.popBackStack();	
+		mWhiteBoardCheckInfo.mDetectedPoints = points;
+	}
+
+	@Override
+	public void onWhiteBoardCheckOK(String warpName) {
+		// TODO Auto-generated method stub
+		transitToBoardResultFragment(warpName);
+	}
+
+	@Override
+	public void onWhiteBoardResultCompleted() {
+		// TODO Auto-generated method stub
+		getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+	}
+
+	@Override
+	public void onWhiteBoardResultCanceled() {
+		// TODO Auto-generated method stub
+		//backを押した時と同じ動作
+		onBackPressed();
 	}
 }
