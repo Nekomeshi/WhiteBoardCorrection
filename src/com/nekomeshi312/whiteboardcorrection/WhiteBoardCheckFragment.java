@@ -53,6 +53,9 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Rect;
+import android.media.MediaScannerConnection;
+import android.media.MediaScannerConnection.OnScanCompletedListener;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -592,18 +595,20 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
             			//warp前の画像ファイルを削除
             			File f = new File(mBeforeFn);
             			f.delete();
-
             			//保存したjpge画像をギャラリーに登録
-            			ContentResolver cr = getSherlockActivity().getContentResolver();
-            			ContentValues values = new ContentValues();  
-            			f = new File(mAfterFn);
-            			String name = f.getName();
-            			values.put(Images.Media.TITLE, name);  
-            			values.put(Images.Media.DISPLAY_NAME, name); 
-            			values.put(Images.Media.MIME_TYPE, "image/jpeg");  
-            			values.put(Images.Media.DATA, mAfterFn);  
-            			cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);  	
-            			
+            			String[] mimeTypes = {"image/jpeg"};
+            			MediaScannerConnection.scanFile(getSherlockActivity(),
+            											new String[]{mAfterFn},
+            			                                mimeTypes,
+            			                                new OnScanCompletedListener() {
+							@Override
+							public void onScanCompleted(String path, Uri uri) {
+								// TODO Auto-generated method stub
+
+            			        Log.d("MediaScannerConnection", "Scanned " + path + ":");
+            			        Log.d("MediaScannerConnection", "-> uri=" + uri);								
+							}
+            			});
             			//親fragmentのメソッドを呼び出し、処理が完了したことを知らせる
             			WhiteBoardCorrectionActivity activity = (WhiteBoardCorrectionActivity)getSherlockActivity();
             			FragmentManager fm = activity.getSupportFragmentManager();
