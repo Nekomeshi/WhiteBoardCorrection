@@ -1357,13 +1357,13 @@ containing a value of this type.
         public static final int SDCardUnMountable=0x7f060010;
         public static final int SDCardUnMounted=0x7f060011;
         public static final int SDCardUnknownError=0x7f060012;
-        public static final int about_copyright=0x7f0600d8;
-        public static final int about_download_url=0x7f0600d9;
-        public static final int about_tab_app=0x7f0600d7;
+        public static final int about_copyright=0x7f0600d9;
+        public static final int about_download_url=0x7f0600da;
+        public static final int about_tab_app=0x7f0600d8;
         /**  About Dialog 
  About Dialog 
          */
-        public static final int about_tab_license=0x7f0600d6;
+        public static final int about_tab_license=0x7f0600d7;
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
          */
         public static final int abs__action_bar_home_description=0x7f060013;
@@ -1418,22 +1418,22 @@ containing a value of this type.
         public static final int anti_banding_summary=0x7f060043;
         public static final int anti_banding_title=0x7f060042;
         public static final int app_name=0x7f0600bb;
-        public static final int aspect_dlg_title=0x7f0600d3;
+        public static final int aspect_dlg_title=0x7f0600d4;
         public static final int auto_white_balance_lock_summary=0x7f0600b4;
         public static final int auto_white_balance_lock_title=0x7f0600b3;
         /**  beam dialog 
  beam dialog 
          */
-        public static final int beam_cancel=0x7f0600dc;
-        public static final int beam_complete_message=0x7f0600df;
-        public static final int beam_message=0x7f0600de;
-        public static final int beam_switch_off=0x7f0600e1;
-        public static final int beam_title=0x7f0600dd;
-        public static final int button_result_complete=0x7f0600db;
+        public static final int beam_cancel=0x7f0600dd;
+        public static final int beam_complete_message=0x7f0600e0;
+        public static final int beam_message=0x7f0600df;
+        public static final int beam_switch_off=0x7f0600e2;
+        public static final int beam_title=0x7f0600de;
+        public static final int button_result_complete=0x7f0600dc;
         /**  result fragment 
  result fragment 
          */
-        public static final int button_result_retry=0x7f0600da;
+        public static final int button_result_retry=0x7f0600db;
         public static final int color_effect_aqua=0x7f06004c;
         public static final int color_effect_blackboard=0x7f06004d;
         public static final int color_effect_dialog_title=0x7f060049;
@@ -1450,27 +1450,28 @@ containing a value of this type.
         /**  e-mail 
  e-mail 
          */
-        public static final int e_mail_body=0x7f0600ef;
-        public static final int e_mail_chooser=0x7f0600f1;
-        public static final int e_mail_completed=0x7f0600f2;
-        public static final int e_mail_subject=0x7f0600f0;
-        public static final int error_msg_cant_create_data_folder=0x7f0600c7;
+        public static final int e_mail_body=0x7f0600f0;
+        public static final int e_mail_chooser=0x7f0600f2;
+        public static final int e_mail_completed=0x7f0600f3;
+        public static final int e_mail_subject=0x7f0600f1;
+        public static final int error_msg_cant_create_data_folder=0x7f0600c8;
+        public static final int error_msg_cant_detect_wb=0x7f0600c5;
+        public static final int error_msg_cant_focus=0x7f0600c7;
+        public static final int error_msg_cant_load_image_file=0x7f0600cb;
+        public static final int error_msg_cant_open_camera=0x7f0600c6;
+        public static final int error_msg_cant_open_captuer_image=0x7f0600c9;
+        public static final int error_msg_cant_save_image_file=0x7f0600cc;
+        public static final int error_msg_evernote_creating_notestore=0x7f0600d0;
+        public static final int error_msg_evernote_listing_notebooks=0x7f0600cf;
+        public static final int error_msg_evernote_receiving_default_note=0x7f0600d2;
+        public static final int error_msg_evernote_saving_note=0x7f0600d1;
         /**  error message 
  error message 
          */
-        public static final int error_msg_cant_detect_wb=0x7f0600c4;
-        public static final int error_msg_cant_focus=0x7f0600c6;
-        public static final int error_msg_cant_load_image_file=0x7f0600ca;
-        public static final int error_msg_cant_open_camera=0x7f0600c5;
-        public static final int error_msg_cant_open_captuer_image=0x7f0600c8;
-        public static final int error_msg_cant_save_image_file=0x7f0600cb;
-        public static final int error_msg_evernote_creating_notestore=0x7f0600cf;
-        public static final int error_msg_evernote_listing_notebooks=0x7f0600ce;
-        public static final int error_msg_evernote_receiving_default_note=0x7f0600d1;
-        public static final int error_msg_evernote_saving_note=0x7f0600d0;
-        public static final int error_msg_saved_file_info=0x7f0600c9;
-        public static final int error_msg_warp_file_not_found=0x7f0600cd;
-        public static final int error_msg_warp_out_of_memory=0x7f0600cc;
+        public static final int error_msg_non_supported_image_format=0x7f0600c4;
+        public static final int error_msg_saved_file_info=0x7f0600ca;
+        public static final int error_msg_warp_file_not_found=0x7f0600ce;
+        public static final int error_msg_warp_out_of_memory=0x7f0600cd;
         public static final int esdk__err_api_setup=0x7f060007;
         public static final int esdk__err_authentication=0x7f060006;
         public static final int esdk__err_protocol_version=0x7f060005;
@@ -1478,22 +1479,22 @@ containing a value of this type.
         public static final int esdk__evernote_login_failed=0x7f060003;
         public static final int esdk__evernote_login_successful=0x7f060004;
         public static final int esdk__loading=0x7f060008;
-        public static final int evernote_chose_notebook=0x7f0600ed;
-        public static final int evernote_error_receiving_default_notebook=0x7f0600ec;
-        public static final int evernote_error_receiving_notebook_list=0x7f0600ea;
-        public static final int evernote_not_loggedin=0x7f0600e4;
-        public static final int evernote_note_saving_complete=0x7f0600e6;
-        public static final int evernote_note_saving_in_progress=0x7f0600e5;
-        public static final int evernote_notebook_title=0x7f0600ee;
-        public static final int evernote_receiving_default_notebook=0x7f0600eb;
-        public static final int evernote_receiving_notebook_list=0x7f0600e9;
-        public static final int evernote_setting_login=0x7f0600e3;
+        public static final int evernote_chose_notebook=0x7f0600ee;
+        public static final int evernote_error_receiving_default_notebook=0x7f0600ed;
+        public static final int evernote_error_receiving_notebook_list=0x7f0600eb;
+        public static final int evernote_not_loggedin=0x7f0600e5;
+        public static final int evernote_note_saving_complete=0x7f0600e7;
+        public static final int evernote_note_saving_in_progress=0x7f0600e6;
+        public static final int evernote_notebook_title=0x7f0600ef;
+        public static final int evernote_receiving_default_notebook=0x7f0600ec;
+        public static final int evernote_receiving_notebook_list=0x7f0600ea;
+        public static final int evernote_setting_login=0x7f0600e4;
         /**  Evernote 
  Evernote 
          */
-        public static final int evernote_setting_title=0x7f0600e2;
-        public static final int evernote_tag_summary=0x7f0600e7;
-        public static final int evernote_tag_title=0x7f0600e8;
+        public static final int evernote_setting_title=0x7f0600e3;
+        public static final int evernote_tag_summary=0x7f0600e8;
+        public static final int evernote_tag_title=0x7f0600e9;
         public static final int exposure_compensation_dialog_title=0x7f0600a0;
         public static final int exposure_compensation_summary=0x7f0600a2;
         public static final int exposure_compensation_title=0x7f0600a1;
@@ -1564,38 +1565,38 @@ containing a value of this type.
         public static final int mVideoStabilization=0x7f060035;
         public static final int mWhiteBalance=0x7f06002d;
         public static final int mZoom=0x7f06002e;
-        public static final int menu_about=0x7f0600f6;
-        public static final int menu_area_confirm=0x7f060109;
-        public static final int menu_aspect_16_10=0x7f060104;
-        public static final int menu_aspect_16_9=0x7f060105;
-        public static final int menu_aspect_2_1=0x7f060106;
-        public static final int menu_aspect_3_2=0x7f060103;
-        public static final int menu_aspect_4_3=0x7f060102;
-        public static final int menu_aspect_explanation=0x7f060100;
-        public static final int menu_aspect_other=0x7f060107;
-        public static final int menu_aspect_other_format=0x7f060108;
-        public static final int menu_aspect_select=0x7f0600ff;
-        public static final int menu_aspect_title_format=0x7f060101;
-        public static final int menu_beam=0x7f06010a;
-        public static final int menu_beam_setup=0x7f06010b;
-        public static final int menu_evernote=0x7f06010c;
-        public static final int menu_evernote_setup=0x7f06010d;
-        public static final int menu_image_check=0x7f0600f5;
-        public static final int menu_load_and_correct=0x7f0600f4;
-        public static final int menu_mail=0x7f06010e;
-        public static final int menu_resolution_1024=0x7f0600fd;
-        public static final int menu_resolution_1280=0x7f0600fc;
-        public static final int menu_resolution_1920=0x7f0600fb;
-        public static final int menu_resolution_640=0x7f0600fe;
-        public static final int menu_resolution_explanation=0x7f0600f9;
-        public static final int menu_resolution_select=0x7f0600f8;
-        public static final int menu_resolution_title_format=0x7f0600fa;
+        public static final int menu_about=0x7f0600f7;
+        public static final int menu_area_confirm=0x7f06010a;
+        public static final int menu_aspect_16_10=0x7f060105;
+        public static final int menu_aspect_16_9=0x7f060106;
+        public static final int menu_aspect_2_1=0x7f060107;
+        public static final int menu_aspect_3_2=0x7f060104;
+        public static final int menu_aspect_4_3=0x7f060103;
+        public static final int menu_aspect_explanation=0x7f060101;
+        public static final int menu_aspect_other=0x7f060108;
+        public static final int menu_aspect_other_format=0x7f060109;
+        public static final int menu_aspect_select=0x7f060100;
+        public static final int menu_aspect_title_format=0x7f060102;
+        public static final int menu_beam=0x7f06010b;
+        public static final int menu_beam_setup=0x7f06010c;
+        public static final int menu_evernote=0x7f06010d;
+        public static final int menu_evernote_setup=0x7f06010e;
+        public static final int menu_image_check=0x7f0600f6;
+        public static final int menu_load_and_correct=0x7f0600f5;
+        public static final int menu_mail=0x7f06010f;
+        public static final int menu_resolution_1024=0x7f0600fe;
+        public static final int menu_resolution_1280=0x7f0600fd;
+        public static final int menu_resolution_1920=0x7f0600fc;
+        public static final int menu_resolution_640=0x7f0600ff;
+        public static final int menu_resolution_explanation=0x7f0600fa;
+        public static final int menu_resolution_select=0x7f0600f9;
+        public static final int menu_resolution_title_format=0x7f0600fb;
         /**  option menu 
  option menu 
          */
-        public static final int menu_settings=0x7f0600f3;
-        public static final int menu_shutter_button=0x7f0600f7;
-        public static final int nfc_switch_off=0x7f0600e0;
+        public static final int menu_settings=0x7f0600f4;
+        public static final int menu_shutter_button=0x7f0600f8;
+        public static final int nfc_switch_off=0x7f0600e1;
         public static final int not_supported=0x7f060022;
         public static final int picture_base_name=0x7f0600c1;
         public static final int picture_folder_base_name=0x7f0600c0;
@@ -1606,15 +1607,15 @@ containing a value of this type.
         public static final int picture_size_summary=0x7f060093;
         public static final int picture_size_title=0x7f060092;
         public static final int picture_warped_name=0x7f0600c2;
-        public static final int pref_aspect_height_key=0x7f060111;
-        public static final int pref_aspect_width_key=0x7f060110;
-        public static final int pref_evernote_login_key=0x7f060112;
-        public static final int pref_evernote_notebook_list_key=0x7f060114;
-        public static final int pref_evernote_tag_key=0x7f060113;
+        public static final int pref_aspect_height_key=0x7f060112;
+        public static final int pref_aspect_width_key=0x7f060111;
+        public static final int pref_evernote_login_key=0x7f060113;
+        public static final int pref_evernote_notebook_list_key=0x7f060115;
+        public static final int pref_evernote_tag_key=0x7f060114;
         /**  setting
  setting
          */
-        public static final int pref_resolution_key=0x7f06010f;
+        public static final int pref_resolution_key=0x7f060110;
         public static final int preview_format_dialog_title=0x7f0600a9;
         public static final int preview_format_summary=0x7f0600ab;
         public static final int preview_format_title=0x7f0600aa;
@@ -1627,7 +1628,7 @@ containing a value of this type.
         public static final int preview_size_dialog_title=0x7f060094;
         public static final int preview_size_summary=0x7f060096;
         public static final int preview_size_title=0x7f060095;
-        public static final int save_as_following_name=0x7f0600d5;
+        public static final int save_as_following_name=0x7f0600d6;
         public static final int scene_mode_action=0x7f060074;
         public static final int scene_mode_auto=0x7f060075;
         public static final int scene_mode_barcode=0x7f060076;
@@ -1667,7 +1668,7 @@ containing a value of this type.
         public static final int video_stabilization_summary=0x7f0600b2;
         public static final int video_stabilization_title=0x7f0600b1;
         public static final int wait_a_minute=0x7f0600c3;
-        public static final int warp_check_dlg_title=0x7f0600d4;
+        public static final int warp_check_dlg_title=0x7f0600d5;
         public static final int white_balance_auto=0x7f060088;
         public static final int white_balance_cloudy_daylight=0x7f060089;
         public static final int white_balance_daylight=0x7f06008a;
@@ -1683,7 +1684,7 @@ containing a value of this type.
         /**  whiteboard check activity 
  whiteboard check activity 
          */
-        public static final int white_board_check_canceled=0x7f0600d2;
+        public static final int white_board_check_canceled=0x7f0600d3;
         public static final int zoom_dialog_title=0x7f06009d;
         public static final int zoom_summary=0x7f06009f;
         public static final int zoom_title=0x7f06009e;

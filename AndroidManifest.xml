@@ -36,6 +36,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/com.nekomeshi312.whiteboardcorrection" />
             </intent-filter>
+            <intent-filter>
+            	<action android:name="android.intent.action.VIEW" />
+            	<category android:name="android.intent.category.DEFAULT" />
+            	<data android:mimeType="image/*"/>
+         	</intent-filter>
 	   	</activity>
 		<activity android:name="CameraSettingActivity"></activity>
         <activity android:name="EvernoteSettingActivity"

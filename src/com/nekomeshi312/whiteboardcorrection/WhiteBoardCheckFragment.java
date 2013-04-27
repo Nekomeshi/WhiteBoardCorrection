@@ -420,7 +420,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 		
 	}
 	/**
-	 * 出力解像度選択メニューで現在選択されている解像度wにチェックを入れる
+	 * 出力解像度選択メニューで現在選択されている解像度にチェックを入れる
 	 */
 	private void setResolutionToOptionMenu(){
 		try{//menuボタンがある端末ではmenuが開いていないことがある（？）のでtry/catchでエラーにならないようにする
@@ -604,9 +604,10 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 							@Override
 							public void onScanCompleted(String path, Uri uri) {
 								// TODO Auto-generated method stub
-
-            			        Log.d("MediaScannerConnection", "Scanned " + path + ":");
-            			        Log.d("MediaScannerConnection", "-> uri=" + uri);								
+								if(MyDebug.DEBUG){
+	            			        Log.d("MediaScannerConnection", "Scanned " + path + ":");
+	            			        Log.d("MediaScannerConnection", "-> uri=" + uri);								
+								}
 							}
             			});
             			//親fragmentのメソッドを呼び出し、処理が完了したことを知らせる

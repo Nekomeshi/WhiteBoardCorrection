@@ -25,6 +25,7 @@
   ----------------------------------------------------------------------------*/
 package com.nekomeshi312.whiteboardcorrection;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +43,7 @@ import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -75,7 +77,7 @@ public class CameraViewFragment extends SherlockFragment
 	public interface LineDetectCallback{
 		public void onLineDetected(ArrayList<Point> points);
 		public void onShutterReleased();
-		public void onJpegFileSelected(String fn, int width, int height);
+		public void onJpegFileSelected(String filePath, String fn, int width, int height);//最後は"/"で終わること
 	}
 	
 	private static final String LOG_TAG = "CameraViewFragment";
@@ -310,32 +312,18 @@ public class CameraViewFragment extends SherlockFragment
 				break;
 			case ACTIVIY_REQUEST_GALLERY_FILE_SELECT:
 				if(data == null) break;
-				Cursor query = MediaStore.Images.Media.query(mParentActivity.getContentResolver(), 
-															data.getData(), 
-									new String[]{ MediaStore.Images.ImageColumns.DISPLAY_NAME, 
-													MediaStore.Images.ImageColumns.TITLE, //ついでに
-													MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,//ついでに
-													MediaStore.Images.ImageColumns.WIDTH,
-													MediaStore.Images.ImageColumns.HEIGHT
-													}, null, null);
-				query.moveToFirst();
-				//ファイル名(拡張子付き
-				String dispName = query.getString(0);
-				//表示名
-				String title = query.getString(1);
-				//たぶんフォルダ名（AllPicturesとかでも、実際の方が取れるので）
-				String backet = query.getString(2);				
-				int width = query.getInt(3);
-				int height = query.getInt(4);
-				if(MyDebug.DEBUG)Log.d(LOG_TAG, "dispname = " + dispName + 
-												"title = " + title + 
-												"backet = " + backet + 
-												"w/h = " + width + "/" + height);
-				if(width <= 0 || height <= 0){
-					Toast.makeText(mParentActivity, R.string.error_msg_saved_file_info, Toast.LENGTH_SHORT).show();
-					break;
-				}
-				((LineDetectCallback) mParentActivity).onJpegFileSelected(dispName, width, height);
+    			int [] size = new int[2];
+    			String []pathInfo = new String[2];
+    			if(MyUtils.getImageInfoFromIntent(mParentActivity,  
+    										data,
+    										pathInfo,
+    										size) == false) break;
+    			
+   				if(size[0] <= 0 || size[1] <= 0){
+   					Toast.makeText(mParentActivity, R.string.error_msg_saved_file_info, Toast.LENGTH_SHORT).show();
+   					break;
+   				}
+   				((LineDetectCallback) mParentActivity).onJpegFileSelected(pathInfo[0] + "/", pathInfo[1], size[0], size[1]);
 				break;
 			case ACTIVIY_REQUEST_GALLERY_IMAGE_CHECK:
 				if(data == null) break;

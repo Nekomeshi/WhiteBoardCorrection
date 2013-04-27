@@ -13,8 +13,9 @@
 	<string name="wait_a_minute">"しばらくお待ち下さい..."</string>
 				
 	<!-- error message -->
+    <string name="error_msg_non_supported_image_format">"この画像フォーマットは対応していません"</string>
     <string name="error_msg_cant_detect_wb">"ホワイトボードが検出できません"</string>
-	<string name="error_msg_cant_open_camera">"カメラをオープンできません"</string>
+   	<string name="error_msg_cant_open_camera">"カメラをオープンできません"</string>
 	<string name="error_msg_cant_focus">"ピント合わせができませんでした"</string>
 	<string name="error_msg_cant_create_data_folder">データフォルダを作成できませんでした。</string>
 	<string name="error_msg_cant_open_captuer_image">"撮影した画像を開けませんでした"</string>

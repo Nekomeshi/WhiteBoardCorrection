@@ -26,6 +26,7 @@
 package com.nekomeshi312.whiteboardcorrection;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -47,6 +48,7 @@ import com.actionbarsherlock.view.Window;
 import com.nekomeshi312.cameraandparameters.CameraAndParameters;
 import com.nekomeshi312.checksdlib.SDCardAccess;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -56,14 +58,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -103,7 +109,7 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 	private WhiteBoardCheckInfo mWhiteBoardCheckInfo = new WhiteBoardCheckInfo();
     private PowerManager.WakeLock mWakeLock = null;
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
 	 */
 	@Override
@@ -137,6 +143,33 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
         mFragCameraView = (CameraViewFragment) fm.findFragmentByTag(FRAG_CAMERA_VIEW_TAG);
         mBoardCheckFragment =(WhiteBoardCheckFragment) fm.findFragmentByTag(FRAG_WB_CHECK_TAG);
         mBoardResultFragment = (WhiteBoardResultFragment)fm.findFragmentByTag(FRAG_WB_RESULT_TAG);
+
+        Intent intent = (Intent)getIntent();
+        if(intent != null){
+        	if(Intent.ACTION_VIEW.equals(intent.getAction())){//Intentで画像ファイルが渡された
+        		if(!intent.getType().equals("image/jpeg") && 
+        				!intent.getType().equals("image/jpg") ){
+            		Toast.makeText(this, R.string.error_msg_non_supported_image_format, Toast.LENGTH_SHORT).show();
+            		Log.w(LOG_TAG, "Intent unsupported image format");
+        		}
+        		else{
+        			int [] size = new int[2];
+        			String []pathInfo = new String[2];
+        			if(MyUtils.getImageInfoFromIntent(this,  
+        										intent,
+        										pathInfo,
+        										size) == true){
+                		//OpenCVロード完了時に画像が読み込めるよう情報設定
+                		mWhiteBoardCheckInfo.mFilePath = pathInfo[0] + "/";
+                		mWhiteBoardCheckInfo.mFileName = pathInfo[1];
+                		mWhiteBoardCheckInfo.mPicWidth = size[0];
+                		mWhiteBoardCheckInfo.mPicHeight = size[1];
+                		mWhiteBoardCheckInfo.mPrevWidth = 0;
+                		mWhiteBoardCheckInfo.mPrevHeight = 0;
+            		}
+        		}
+        	}
+        }
     }
     
 	/* (non-Javadoc)
@@ -363,12 +396,19 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
         				Log.w(LOG_TAG, "OpenCV Loading unknown error");
         				break;
         		}
-        		//OpenCVManagerのインストールを実施した場合は、インストール完了してアクティビティがここに戻ってきた時にSUCESSが返される。
+        		//OpenCVManagerのインストールを実施した場合は、インストール完了してアクティビティがここに戻ってきた時にSUCCESSが返される。
                 super.onManagerConnected(status);//どうも勝手にactivityを閉じてくれるらしい。
                 return;
         	}
            	Log.i(LOG_TAG, "OpenCV loaded successfully");
-           	mFragCameraView.startPreview();
+           	//Beamで画像が送られた(Intentで画像ファイルが渡された)ときはプレビューを開始せずいきなりBoardcheckに行く
+           	if(mWhiteBoardCheckInfo.mFileName != null && 
+           			mWhiteBoardCheckInfo.mFileName.length() > 0){
+        		transitToBoardCheckFragment();
+           	}   
+           	else{//カメラのプレビュー開始
+           		mFragCameraView.startPreview();
+           	}
         }
     };
 
@@ -629,15 +669,14 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 		mWhiteBoardCheckInfo.mPicHeight = height;
 		mWhiteBoardCheckInfo.mPrevWidth = prevWidth;
 		mWhiteBoardCheckInfo.mPrevHeight = prevHeight;
-		//mWhiteBoardCheckInfo.mDetectedPoints
 		transitToBoardCheckFragment();
 	}
 
 	@Override
-	public void onJpegFileSelected(String name, int width, int height) {
+	public void onJpegFileSelected(String path, String name, int width, int height) {
 		// TODO Auto-generated method stub
-		final String folderBase = getString(R.string.picture_folder_base_name);
-		String path = PictureFolder.createPicturePath(this, folderBase);
+//		final String folderBase = getString(R.string.picture_folder_base_name);
+//		String path = PictureFolder.createPicturePath(this, folderBase);
 		mWhiteBoardCheckInfo.mDetectedPoints = null;
 		mWhiteBoardCheckInfo.mFileName = name;
 		mWhiteBoardCheckInfo.mFilePath = path;
