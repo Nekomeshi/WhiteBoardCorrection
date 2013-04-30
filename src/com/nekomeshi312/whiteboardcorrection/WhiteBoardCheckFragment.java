@@ -93,6 +93,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 	private static final String TAG_HEIGHT = "height";
 	private static final String TAG_PREV_WIDTH = "prevWidth";
 	private static final String TAG_PREV_HEIGHT = "prevHeight";
+	private static final String TAG_IS_CAPTURED = "isCaptured";
 	private static final String TAG_WB_POS = "whiteboardPos";
 
 	private static final String LOG_TAG = "WhiteBoardCheckFragment";
@@ -103,6 +104,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 	private int mPrevHeight = -1;
 	private String mFilePath = null;
 	private String mFileName = null;
+	private boolean mIsCaptured = true;
 	private double [] mPreviewPoints = null;
 	private boolean mArgsOK = true;
 	private boolean mIsPictureOK = false;//Whiteboardの補正がかけられる状態にあればtrue
@@ -131,6 +133,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 		args.putInt(TAG_HEIGHT, checkInfo.mPicHeight);
 		args.putInt(TAG_PREV_WIDTH, checkInfo.mPrevWidth);
 		args.putInt(TAG_PREV_HEIGHT, checkInfo.mPrevHeight);
+		args.putBoolean(TAG_IS_CAPTURED, checkInfo.mIsCaptured);
 		if(checkInfo.mDetectedPoints != null){
 			double [] points = new double[8];
 			for(int i = 0;i < 4;i++){
@@ -165,6 +168,9 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 	public void onDetach() {
 		// TODO Auto-generated method stub
 		super.onDetach();
+		if(mPicBitmap != null){
+			mPicBitmap.recycle();
+		}
 		mParentActivity = null;
 		if(MyDebug.DEBUG)Log.i(LOG_TAG, "onDetach");
 
@@ -207,7 +213,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
             mPrevWidth = args.getInt(TAG_PREV_WIDTH, -1);
             mPrevHeight = args.getInt(TAG_PREV_HEIGHT, -1);
             mPreviewPoints = args.getDoubleArray(TAG_WB_POS);
-            
+            mIsCaptured = args.getBoolean(TAG_IS_CAPTURED, true);
             if(mFilePath == null){
             	Log.w(LOG_TAG, "Invalid picture path");
             	mArgsOK = false;
@@ -512,7 +518,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 							final int w = pickWidth.getCurrent();
 							final int h = pickHeight.getCurrent();
 							//クラスがstaticなので、activityからtagでfragmentを見つけてfragment内のメソッドを読み出す（遠回り・・他にいい方法ない？）
-							WhiteBoardCorrectionActivity activity = (WhiteBoardCorrectionActivity)getSherlockActivity();
+							SherlockFragmentActivity activity = (SherlockFragmentActivity)getSherlockActivity();
 							FragmentManager fm = activity.getSupportFragmentManager();
 							WhiteBoardCheckFragment parentFragment = 
 										(WhiteBoardCheckFragment) fm.findFragmentByTag(tag);
@@ -550,6 +556,9 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
     	
     	private String mBeforeFn = null;
     	private String mAfterFn = null;
+    	private Bitmap mBeforeBM = null;
+    	private Bitmap mAfterBM = null;
+    	
     	/**
     	 * fragmentを作成するメソッド
     	 * @param tag　親フラグメントのtag このフラグメントから親フラグメントのメソッドを実行する際に使用する
@@ -579,10 +588,12 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
         	final int imgsize = (int) ((double)IMG_SIZE*scale + 0.5);
             LayoutInflater inflater = getActivity().getLayoutInflater();  
             View view = inflater.inflate(R.layout.fragment_warp_result, null, false);  
+            mBeforeBM = MyUtils.loadJpeg(mBeforeFn, imgsize, imgsize);
+            mAfterBM = MyUtils.loadJpeg(mAfterFn, imgsize, imgsize);
             ImageView iv = (ImageView)view.findViewById(R.id.image_warp_before);
-            iv.setImageBitmap(MyUtils.loadJpeg(mBeforeFn, imgsize, imgsize));
+            iv.setImageBitmap(mBeforeBM);
             iv = (ImageView)view.findViewById(R.id.image_warp_after);
-            iv.setImageBitmap(MyUtils.loadJpeg(mAfterFn, imgsize, imgsize));
+            iv.setImageBitmap(mAfterBM);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
             	.setIcon(R.drawable.ic_launcher)
@@ -611,7 +622,7 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 							}
             			});
             			//親fragmentのメソッドを呼び出し、処理が完了したことを知らせる
-            			WhiteBoardCorrectionActivity activity = (WhiteBoardCorrectionActivity)getSherlockActivity();
+            			SherlockFragmentActivity activity = (SherlockFragmentActivity)getSherlockActivity();
             			FragmentManager fm = activity.getSupportFragmentManager();
             			WhiteBoardCheckFragment parentFragment = 
 								(WhiteBoardCheckFragment) fm.findFragmentByTag(tag);
@@ -660,6 +671,8 @@ public class WhiteBoardCheckFragment extends SherlockFragment{
 		public void onDismiss(DialogInterface dialog) {
 			// TODO Auto-generated method stub
 			super.onDismiss(dialog);
+            if(mBeforeBM != null) mBeforeBM.recycle();
+            if(mAfterBM != null) mAfterBM.recycle();
 		}
     }
     /**

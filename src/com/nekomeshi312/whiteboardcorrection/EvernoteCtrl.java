@@ -36,8 +36,8 @@ public class EvernoteCtrl {
 
 	// Your Evernote API key. See http://dev.evernote.com/documentation/cloud/
 	// Please obfuscate your code to help keep these values secret.
-	private static final String CONSUMER_KEY = "xxxxxxxxxxxxxxxxxxxxxx";
-	private static final String CONSUMER_SECRET = "xxxxxxxxxxxxxxxxxxxxx";
+	private static final String CONSUMER_KEY = "xxxxxxxxxxxxxxxxxxxxx";
+	private static final String CONSUMER_SECRET = "xxxxxxxxxxxxx";
 
 	// Initial development is done on Evernote's testing service, the sandbox.
 	// Change to HOST_PRODUCTION to use the Evernote production service

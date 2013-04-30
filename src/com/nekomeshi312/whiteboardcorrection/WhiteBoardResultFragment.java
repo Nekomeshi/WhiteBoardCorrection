@@ -15,9 +15,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcAdapter.CreateBeamUrisCallback;
@@ -29,6 +31,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -51,7 +56,8 @@ import com.evernote.client.android.OnClientCallback;
 import com.evernote.edam.type.Note;
 import com.nekomeshi312.whiteboardcorrection.MyUtils.ProgressDialogFrag;
 
-public class WhiteBoardResultFragment extends SherlockFragment{
+public class WhiteBoardResultFragment extends SherlockFragment
+									implements LoaderCallbacks<Bitmap>{
 
 	public interface WhiteBoardResultCallback{
 		public void onWhiteBoardResultCompleted();
@@ -59,7 +65,7 @@ public class WhiteBoardResultFragment extends SherlockFragment{
 	}
 	private static final String LOG_TAG = "WhiteBoardResultFragment";
 
-	private Activity mParentActivity;
+	private SherlockFragmentActivity mParentActivity;
 	private static final String TAG_FRAGMENT = "tag";
 	private static final String TAG_WARP_NAME = "warpname";
 	
@@ -77,6 +83,8 @@ public class WhiteBoardResultFragment extends SherlockFragment{
     private static final int BEAM_MESSAGE_SENT = 1;
     private static final int MAIL_MESSAGE_SENT = 2;
     private EvernoteCtrl mEvernoteCtrl;
+    
+    private static final int LOADER_ID_LOAD_JPEG_ASYNC = 0;
 
 	public static WhiteBoardResultFragment newInstance(String tag, 
 														String warpName) {
@@ -100,7 +108,7 @@ public class WhiteBoardResultFragment extends SherlockFragment{
 			mParentActivity = null;
 			return;
 		}
-		mParentActivity = activity;
+		mParentActivity = (SherlockFragmentActivity) activity;
 		mEvernoteCtrl = new EvernoteCtrl(activity);
 	}
 
@@ -112,6 +120,10 @@ public class WhiteBoardResultFragment extends SherlockFragment{
 		// TODO Auto-generated method stub
 		super.onDetach();
 		mParentActivity = null;
+		if(mPicBitmap != null) {
+			mPicBitmap.recycle();
+			mPicBitmap = null;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -158,8 +170,14 @@ public class WhiteBoardResultFragment extends SherlockFragment{
 		mScreenWidth = viewBase.getWidth();
 		mScreenHeight = viewBase.getHeight();
 
-		LoadJpegFAsyncTask loadJpeg = new LoadJpegFAsyncTask();
-		loadJpeg.execute();
+		Bundle bundle = new Bundle();
+        bundle.putInt("WIDTH", mScreenWidth);
+        bundle.putInt("HEIGHT", mScreenHeight);
+        bundle.putString("FILENAME", mWarpName);
+        //initLoaderだと再利用されて２回めが表示されないためrestartLoaderを使う
+        mParentActivity.getSupportLoaderManager().restartLoader(LOADER_ID_LOAD_JPEG_ASYNC, 
+        													bundle, 
+        													this);
 		
 		Button okButton = (Button)root.findViewById(R.id.button_result_ok);
 		okButton.setOnClickListener(new View.OnClickListener() {
@@ -202,123 +220,6 @@ public class WhiteBoardResultFragment extends SherlockFragment{
         }
     };
 
-	
-	private class LoadJpegFAsyncTask extends AsyncTask<Void, Void, Integer>{
-		private static final int CANT_READ_FILE_ERROR = -1;
-		private static final int LOAD_OK = 0;
-		
-		private ProgressDialog mLoadingDialog;
-		private int mWidth;
-		private int mHeight;
-		
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onCancelled()
-		 */
-		@Override
-		protected void onCancelled() {
-			// TODO Auto-generated method stub
-			super.onCancelled();
-			try{
-				if(mLoadingDialog != null) mLoadingDialog.dismiss();
-			}
-			catch(IllegalArgumentException e){//親のactivityが閉じてしまっている場合のエラーを無視する
-				e.printStackTrace();
-			}
-
-			mLoadingDialog = null;
-			Toast.makeText(mParentActivity, R.string.white_board_check_canceled, Toast.LENGTH_SHORT).show();
-		}
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute(Integer result) {
-			// TODO Auto-generated method stub
-			super.onPostExecute(result);
-			try{
-				if(mLoadingDialog != null) mLoadingDialog.dismiss();
-			}
-			catch(IllegalArgumentException e){//親のactivityが閉じてしまっている場合のエラーを無視する
-				e.printStackTrace();
-			}
-			mLoadingDialog = null;
-			if(result == CANT_READ_FILE_ERROR){
-			}
-			else{
-				FrameLayout.LayoutParams prm = (FrameLayout.LayoutParams) mResultViewBase.getLayoutParams();
-				prm.width = mWidth;
-				prm.height = mHeight;
-				prm.gravity=Gravity.CENTER;
-				mResultViewBase.setLayoutParams(prm);
-				mWarpedImageView.setImageBitmap(mPicBitmap);
-			}
-		}
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPreExecute()
-		 */
-		@Override
-		protected void onPreExecute() {
-			// TODO Auto-generated method stub
-			super.onPreExecute();
-			mLoadingDialog = new ProgressDialog(mParentActivity);
-			String msg = mParentActivity.getString(R.string.wait_a_minute);
-			mLoadingDialog.setMessage(msg);
-		    // 円スタイル（くるくる回るタイプ）に設定します
-		    mLoadingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		    mLoadingDialog.setCancelable(false);
-		    // プログレスダイアログを表示
-		    mLoadingDialog.show();
-
-			final View viewBase = (View)mParentActivity.findViewById(R.id.camera_view_base);
-			mScreenWidth = viewBase.getWidth();
-			mScreenHeight = viewBase.getHeight();
-			if(MyDebug.DEBUG)Log.d(LOG_TAG, "viewBaseSize = " + mScreenWidth + ":" + mScreenHeight);
-		}
-		
-		@Override
-		protected Integer doInBackground(Void... arg0) {
-			// TODO Auto-generated method stub
-			//jpegロード
-			mPicBitmap = MyUtils.loadJpeg(mWarpName, mScreenWidth, mScreenHeight);
-			if(mPicBitmap == null){
-				return CANT_READ_FILE_ERROR;
-			}
-			//ロード時のサンプリングの関係でjpegサイズがスクリーンサイズに一致しないので再度リサイズする
-			int w = mPicBitmap.getWidth();
-			int h = mPicBitmap.getHeight();
-		    Mat pic = new Mat(w, h, CvType.CV_8UC4);
-		    Utils.bitmapToMat(mPicBitmap, pic);
-			final double aspectScreen = (double)mScreenWidth/(double)mScreenHeight;
-			final double aspectPic = (double)w/(double)h;
-			if(aspectPic >= aspectScreen){//Picのほうが横長->幅を合わせる
-				final double resize = (double)mScreenWidth/(double)w;
-				h = (int)((double)h*resize + 0.5);
-				w = mScreenWidth;
-			}
-			else{
-				final double resize = (double)mScreenHeight/(double)h;
-				w = (int)((double)w*resize + 0.5);
-				h = mScreenHeight;
-			}
-			//画像サイズが4の倍数になるように
-			w = ((w >> 2) + 1) << 2;
-			h = ((h >> 2) + 1) << 2;
-
-			mWidth = w;
-			mHeight = h;
-			if(MyDebug.DEBUG) Log.d(LOG_TAG, "screen size  = " + w + ":" + h);
-			//リサイズ
-			Imgproc.resize(pic, pic, new Size(w, h));
-			mPicBitmap.recycle();
-			mPicBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-			Utils.matToBitmap(pic, mPicBitmap);
-			//jpeg表示
-			return LOAD_OK;
-		}
-	}
 
 
 	/* (non-Javadoc)
@@ -487,7 +388,7 @@ public class WhiteBoardResultFragment extends SherlockFragment{
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
         	final String tag = getArguments().getString(KEY_TAG);
         	mWarpName = getArguments().getString(KEY_WARP_NAME);
-			mParentActivity = (WhiteBoardCorrectionActivity)getSherlockActivity();
+			mParentActivity = (Activity)getSherlockActivity();
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 			builder.setMessage(R.string.beam_message);
@@ -552,6 +453,140 @@ public class WhiteBoardResultFragment extends SherlockFragment{
 	       	mNfcAdapter.setOnNdefPushCompleteCallback(null, mParentActivity);
 	       	mNfcAdapter = null;
 		}
+		
+	}
+
+    private static class LoadJpegAsyncTaskLoader extends AsyncTaskLoader<Bitmap>{
+
+		private int mViewBaseWidth;
+    	private int mViewBaseHeight;
+    	private String mFileName;
+		public LoadJpegAsyncTaskLoader(Context context, int w, int h, String fileName) {
+			super(context);
+			// TODO Auto-generated constructor stub
+			mViewBaseWidth = w;
+			mViewBaseHeight = h;
+			mFileName = fileName;
+		}
+    	/* (non-Javadoc)
+		 * @see android.support.v4.content.Loader#onStartLoading()
+		 */
+		@Override
+		protected void onStartLoading() {
+			// TODO Auto-generated method stub
+			this.forceLoad();
+		}
+		@Override
+		public Bitmap loadInBackground() {
+			// TODO Auto-generated method stub
+			/*
+			Bitmap picBitmap = MyUtils.loadJpeg(mFileName, mViewBaseWidth, mViewBaseHeight);
+			if(picBitmap == null){
+				return null;
+			}
+			//ロード時のサンプリングの関係でjpegサイズがスクリーンサイズに一致しないので再度リサイズする
+			int w = picBitmap.getWidth();
+			int h = picBitmap.getHeight();
+		    Mat pic = new Mat(w, h, CvType.CV_8UC4);
+		    Utils.bitmapToMat(picBitmap, pic);
+			final double aspectScreen = (double)mViewBaseWidth/(double)mViewBaseHeight;
+			final double aspectPic = (double)w/(double)h;
+			if(aspectPic >= aspectScreen){//Picのほうが横長->幅を合わせる
+				final double resize = (double)mViewBaseWidth/(double)w;
+				h = (int)((double)h*resize + 0.5);
+				w = mViewBaseWidth;
+			}
+			else{
+				final double resize = (double)mViewBaseHeight/(double)h;
+				w = (int)((double)w*resize + 0.5);
+				h = mViewBaseHeight;
+			}
+			//画像サイズが4の倍数になるように
+			w = ((w >> 2) + 1) << 2;
+			h = ((h >> 2) + 1) << 2;
+
+			if(MyDebug.DEBUG) Log.d(LOG_TAG, "screen size  = " + w + ":" + h);
+			//リサイズ
+			Imgproc.resize(pic, pic, new Size(w, h));
+			picBitmap.recycle();
+			picBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+			Utils.matToBitmap(pic, picBitmap);
+			return picBitmap;
+			*/
+			return BitmapFactory.decodeFile(mFileName);
+		}
+    	
+    }
+	
+	private ProgressDialog mLoadingDialog = null;
+
+	@Override
+	public Loader<Bitmap> onCreateLoader(int id, Bundle args) {
+		// TODO Auto-generated method stub
+		switch(id){
+			case LOADER_ID_LOAD_JPEG_ASYNC:
+			       if(args != null) {
+						mLoadingDialog = new ProgressDialog(mParentActivity);
+						String msg = mParentActivity.getString(R.string.wait_a_minute);
+						mLoadingDialog.setMessage(msg);
+					    // 円スタイル（くるくる回るタイプ）に設定します
+					    mLoadingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+					    mLoadingDialog.setCancelable(false);
+					    // プログレスダイアログを表示
+					    mLoadingDialog.show();
+
+			    	   int w = args.getInt("WIDTH");
+			    	   int h = args.getInt("HEIGHT");
+			    	   String fn = args.getString("FILENAME");
+			           return new LoadJpegAsyncTaskLoader(mParentActivity, w, h, fn);
+			        }
+					break;
+			default:break;
+		}
+		return null;
+	}
+
+
+	@Override
+	public void onLoadFinished(Loader<Bitmap> arg0, Bitmap arg1) {
+		// TODO Auto-generated method stub
+
+		switch(arg0.getId()){
+			case LOADER_ID_LOAD_JPEG_ASYNC:
+				try{
+					if(mLoadingDialog != null) mLoadingDialog.dismiss();
+				}
+				catch(IllegalArgumentException e){//親のactivityが閉じてしまっている場合のエラーを無視する
+					e.printStackTrace();
+				}
+				mLoadingDialog = null;
+				if(arg1 == null){
+					Log.w(LOG_TAG, "onLoadFinished:arg1 == null");
+				}
+				else{
+					if(mPicBitmap != null) {
+						mPicBitmap.recycle();
+					}
+
+					mPicBitmap = arg1;
+//					FrameLayout.LayoutParams prm = (FrameLayout.LayoutParams) mResultViewBase.getLayoutParams();
+//					prm.width = (int) arg1.getWidth();
+//					prm.height = (int) arg1.getHeight();
+//					prm.gravity=Gravity.CENTER;
+//					mResultViewBase.setLayoutParams(prm);
+					mWarpedImageView.setImageBitmap(mPicBitmap);
+					mWarpedImageView.invalidate();
+				}
+				break;
+			default:break;
+
+		}
+	}
+
+
+	@Override
+	public void onLoaderReset(Loader<Bitmap> arg0) {
+		// TODO Auto-generated method stub
 		
 	}
 }

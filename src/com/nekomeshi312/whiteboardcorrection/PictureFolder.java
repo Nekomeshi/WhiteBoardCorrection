@@ -98,19 +98,20 @@ public class PictureFolder{
 	 * @param folderName ファイルを格納するフォル名のベース名。　createPicturePathでpathを生成し、ファイルが保存できない場合はインクリメントする
 	 * @return　ファイル名　失敗した場合はnull
 	 */
-	public static String createPictureName(Context context, String folderName, String picName){
+	public static String createPictureName(Context context, String folderName, String picName, String warpName){
     	//データファイル名を追加
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-		File fl;
 		String name;
 		do{
 			final int pictureNumber = pref.getInt(PICTURE_NUMBER_PREF, INITIAL_PICTURE_NUMBER);
 			String path = createPicturePath(context, folderName);
 			if(path == null) return null;
 			name = picName + String.format("%04d", pictureNumber) + ".jpg";
-			fl = new File(path + name);
-			if(true != fl.exists()) break;
-			 pictureNumberCountUp(context);
+			String warp = name.replaceAll(picName, warpName);
+			File fl = new File(path + name);
+			File flw = new File(path + warp);
+			if(!fl.exists() && !flw.exists()) break;
+			pictureNumberCountUp(context);
 		}while(true);
     	return name;
 	}

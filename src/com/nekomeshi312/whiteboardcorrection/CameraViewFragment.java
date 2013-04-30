@@ -36,8 +36,10 @@ import org.opencv.core.Point;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
@@ -77,7 +79,7 @@ public class CameraViewFragment extends SherlockFragment
 	public interface LineDetectCallback{
 		public void onLineDetected(ArrayList<Point> points);
 		public void onShutterReleased();
-		public void onJpegFileSelected(String filePath, String fn, int width, int height);//最後は"/"で終わること
+		public void onJpegFileSelected(String fn, int width, int height);//最後は"/"で終わること
 	}
 	
 	private static final String LOG_TAG = "CameraViewFragment";
@@ -94,6 +96,7 @@ public class CameraViewFragment extends SherlockFragment
 	private static final int ACTIVIY_REQUEST_CAMERA_SETTING_PREF = 0;
 	private static final int ACTIVIY_REQUEST_GALLERY_FILE_SELECT = 1;
 	private static final int ACTIVIY_REQUEST_GALLERY_IMAGE_CHECK = 2;
+	private static final int ACTIVIY_REQUEST_GALLERY_IMAGE_CHECK_DONE = 3;
 
 	private  static CameraAndParameters mCameraSetting = WhiteBoardCorrectionActivity.getCameraSetting();
 
@@ -184,6 +187,11 @@ public class CameraViewFragment extends SherlockFragment
 		if(!mCameraSettingPrefOpen && mCameraSetting.isCameraOpen()){
 			mCameraSetting.releaseCamera();
 		}
+		//Intentで自分自身を呼び出さないようにChooserに表示されないように設定したのを戻す
+		//onActivityResultで戻しているが、万一戻すのに失敗した時に、アプリを
+		//終了させたら元に戻るようにここにも入れておく
+		WhiteBoardCorrectionIntentRecvActivity.intentReceiveEnable(mParentActivity, true);				
+
 	}
 	
 	/* (non-Javadoc)
@@ -230,7 +238,6 @@ public class CameraViewFragment extends SherlockFragment
 		if(mCameraSetting.isCameraOpen()){
 			stopPreview();
 		}
-		
 	}
 
 	/* (non-Javadoc)
@@ -313,30 +320,35 @@ public class CameraViewFragment extends SherlockFragment
 			case ACTIVIY_REQUEST_GALLERY_FILE_SELECT:
 				if(data == null) break;
     			int [] size = new int[2];
-    			String []pathInfo = new String[2];
-    			if(MyUtils.getImageInfoFromIntent(mParentActivity,  
-    										data,
-    										pathInfo,
-    										size) == false) break;
+    			String fn = MyUtils.getImageInfoFromIntent(mParentActivity,  
+    														data,
+    														size);
+    			if(fn == null) break;
     			
    				if(size[0] <= 0 || size[1] <= 0){
    					Toast.makeText(mParentActivity, R.string.error_msg_saved_file_info, Toast.LENGTH_SHORT).show();
    					break;
    				}
-   				((LineDetectCallback) mParentActivity).onJpegFileSelected(pathInfo[0] + "/", pathInfo[1], size[0], size[1]);
+   				((LineDetectCallback) mParentActivity).onJpegFileSelected(fn, size[0], size[1]);
 				break;
 			case ACTIVIY_REQUEST_GALLERY_IMAGE_CHECK:
 				if(data == null) break;
 				Intent intent = new Intent(Intent.ACTION_VIEW); 
 				try{
 					intent.setData(data.getData());
-					startActivity(intent); 
 				}
 				catch(Exception e){
 					e.printStackTrace();
 				}
-
+				//Intentで自分自身を呼び出さないようにChooserに表示されないように設定
+				WhiteBoardCorrectionIntentRecvActivity.intentReceiveEnable(mParentActivity, false);
+				startActivityForResult(intent, ACTIVIY_REQUEST_GALLERY_IMAGE_CHECK_DONE);
 				break;
+			case ACTIVIY_REQUEST_GALLERY_IMAGE_CHECK_DONE:
+				//Intentで自分自身を呼び出さないようにChooserに表示されないように設定したのを戻す
+				WhiteBoardCorrectionIntentRecvActivity.intentReceiveEnable(mParentActivity, true);				
+				break;
+			
 		}
 	}
 
@@ -443,6 +455,7 @@ public class CameraViewFragment extends SherlockFragment
 		
 		if(mWbDetect.detectWhiteBoard(mLines, lineNum, points, mMatRgba)){
 			mWhiteBoardView.setWhiteBoardCorners(points);
+			if(callback == null) return;
 			callback.onLineDetected(points);
 			if(mLastUnDetectTime > 0) {
 				mTextViewLineDetectErrorMsg.setVisibility(View.INVISIBLE);

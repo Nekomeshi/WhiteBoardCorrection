@@ -27,11 +27,13 @@ package com.nekomeshi312.whiteboardcorrection;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -59,6 +61,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -145,30 +148,34 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
         mBoardResultFragment = (WhiteBoardResultFragment)fm.findFragmentByTag(FRAG_WB_RESULT_TAG);
 
         Intent intent = (Intent)getIntent();
-        if(intent != null){
-        	if(Intent.ACTION_VIEW.equals(intent.getAction())){//Intentで画像ファイルが渡された
-        		if(!intent.getType().equals("image/jpeg") && 
-        				!intent.getType().equals("image/jpg") ){
-            		Toast.makeText(this, R.string.error_msg_non_supported_image_format, Toast.LENGTH_SHORT).show();
-            		Log.w(LOG_TAG, "Intent unsupported image format");
-        		}
-        		else{
-        			int [] size = new int[2];
-        			String []pathInfo = new String[2];
-        			if(MyUtils.getImageInfoFromIntent(this,  
-        										intent,
-        										pathInfo,
-        										size) == true){
-                		//OpenCVロード完了時に画像が読み込めるよう情報設定
-                		mWhiteBoardCheckInfo.mFilePath = pathInfo[0] + "/";
-                		mWhiteBoardCheckInfo.mFileName = pathInfo[1];
-                		mWhiteBoardCheckInfo.mPicWidth = size[0];
-                		mWhiteBoardCheckInfo.mPicHeight = size[1];
-                		mWhiteBoardCheckInfo.mPrevWidth = 0;
-                		mWhiteBoardCheckInfo.mPrevHeight = 0;
-            		}
-        		}
-        	}
+        if(intent != null &&
+        		Intent.ACTION_VIEW.equals(intent.getAction()) && 
+       				intent.getType() != null){
+        	
+           	if(!intent.getType().equals("image/jpeg") && 
+            			!intent.getType().equals("image/jpg") ){
+           		Toast.makeText(this, R.string.error_msg_non_supported_image_format, Toast.LENGTH_SHORT).show();
+           		Log.w(LOG_TAG, "Intent unsupported image format");
+           	}
+           	else{
+           		int [] size = new int[2];
+           		String fn = MyUtils.getImageInfoFromIntent(this,  
+															intent,
+															size);
+           		if(fn != null){
+           			//OpenCVロード完了時に画像が読み込めるよう情報設定
+           			String [] newFn = new String[2];
+           			if(copyImageToSD(fn, newFn) == true){
+           				mWhiteBoardCheckInfo.mFilePath = newFn[0];
+           				mWhiteBoardCheckInfo.mFileName = newFn[1];
+           				mWhiteBoardCheckInfo.mPicWidth = size[0];
+           				mWhiteBoardCheckInfo.mPicHeight = size[1];
+           				mWhiteBoardCheckInfo.mIsCaptured = false;
+           				mWhiteBoardCheckInfo.mPrevWidth = 0;
+           				mWhiteBoardCheckInfo.mPrevHeight = 0;
+           			}
+           		}
+            }
         }
     }
     
@@ -214,6 +221,10 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
+		if(!mWhiteBoardCheckInfo.mIsCaptured){
+			deleteCopyImg();
+		}
+		mWhiteBoardCheckInfo.resetInfo();
 	}
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onBackPressed()
@@ -221,14 +232,20 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 	@Override
 	public void onBackPressed() {
 		// TODO Auto-generated method stub
-		if(mFragCameraView.isAdded()){
+		if(mFragCameraView.isAdded()){//CameraView表示中はアプリ終了
 			finish();
 		}
 		else{
 			boolean isResultFragAdded = mBoardResultFragment == null ? false:mBoardResultFragment.isAdded();
 			getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-			if(isResultFragAdded){
+			if(isResultFragAdded){//Warp 結果を表示しているときはWorpCheckに移る
 				 transitToBoardCheckFragment();
+			}
+			else{//それ以外(WarpCheckでBackが押されたときは自分でCaptureした画像でなければ削除する
+				if(!mWhiteBoardCheckInfo.mIsCaptured){
+					deleteCopyImg();
+				}
+				mWhiteBoardCheckInfo.resetInfo();
 			}
 		}
 	}
@@ -248,6 +265,10 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 		switch(item.getItemId()){
 			case android.R.id.home:
 				getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+				if(!mWhiteBoardCheckInfo.mIsCaptured){
+					deleteCopyImg();
+				}
+				mWhiteBoardCheckInfo.resetInfo();
 				return true;
 			case R.id.menu_about:
 				ShowAboutDlgTask task = new ShowAboutDlgTask();
@@ -583,7 +604,19 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 		return result;
     }
 
-    
+    /**
+     * 新しい画像ファイル名を作成する
+     * @param n n[0]:ファイルのフルパス(ファイル名は含まない　最後に "/" 付き)　n[1]:ファイル名　
+     * @return true:成功　false:失敗
+     */
+    private boolean createPictureName(String [] n){
+		final String folderBase = getString(R.string.picture_folder_base_name);
+		final String filenameBase = getString(R.string.picture_base_name);
+		final String warpBase = getString(R.string.picture_warped_name);
+		n[0] = PictureFolder.createPicturePath(this, folderBase);
+		n[1] = PictureFolder.createPictureName(this, folderBase, filenameBase, warpBase);
+		return n[0] != null && n[1] != null;
+    }
 	@Override
 	public void onPictureTaken(byte[] data, Camera camera) {
 		// TODO Auto-generated method stub
@@ -603,9 +636,13 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 				String fn = null;
 				final String folderBase = getString(R.string.picture_folder_base_name);
 				final String filenameBase = getString(R.string.picture_base_name);
-				name = PictureFolder.createPictureName(this, folderBase, filenameBase);
+				final String warpBase = getString(R.string.picture_warped_name);
+				name = PictureFolder.createPictureName(this, folderBase, filenameBase, warpBase);
 				path = PictureFolder.createPicturePath(this, folderBase);
-				if(name != null && path != null){
+				String []n = new String[2];
+				if(createPictureName(n)){
+					path = n[0];
+					name = n[1];
 					fn = path + name;
 					if(MyDebug.DEBUG) Log.d(LOG_TAG, "Picture file name = " + fn);
 					
@@ -669,23 +706,47 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 		mWhiteBoardCheckInfo.mPicHeight = height;
 		mWhiteBoardCheckInfo.mPrevWidth = prevWidth;
 		mWhiteBoardCheckInfo.mPrevHeight = prevHeight;
+		mWhiteBoardCheckInfo.mIsCaptured = true;
 		transitToBoardCheckFragment();
 	}
 
 	@Override
-	public void onJpegFileSelected(String path, String name, int width, int height) {
+	public void onJpegFileSelected(String name, int width, int height) {
 		// TODO Auto-generated method stub
 //		final String folderBase = getString(R.string.picture_folder_base_name);
 //		String path = PictureFolder.createPicturePath(this, folderBase);
+		String [] newFn = new String[2];
+		if(copyImageToSD(name, newFn) != true) return;
+
 		mWhiteBoardCheckInfo.mDetectedPoints = null;
-		mWhiteBoardCheckInfo.mFileName = name;
-		mWhiteBoardCheckInfo.mFilePath = path;
+		mWhiteBoardCheckInfo.mFileName = newFn[1];
+		mWhiteBoardCheckInfo.mFilePath = newFn[0];
 		mWhiteBoardCheckInfo.mPicWidth = width;
 		mWhiteBoardCheckInfo.mPicHeight = height;
 		mWhiteBoardCheckInfo.mPrevHeight = 0;
 		mWhiteBoardCheckInfo.mPrevWidth = 0;
+		mWhiteBoardCheckInfo.mIsCaptured = false;
 		transitToBoardCheckFragment();
-	}    
+	}
+	private boolean deleteCopyImg(){
+		if(mWhiteBoardCheckInfo.mIsCaptured) return false;
+		String fn = mWhiteBoardCheckInfo.mFilePath + mWhiteBoardCheckInfo.mFileName;
+		
+		File f = new File(fn);
+		try{
+			f.delete();
+			return true;
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+	}
+	private boolean copyImageToSD(String src, String []dstInfo){
+		if(createPictureName(dstInfo) == false) return false;
+		String dst = dstInfo[0] + dstInfo[1];
+		return MyUtils.copyFile(src,  dst);
+	}
 
 	private void transitToCameraViewFragment(){
 		if(mFragCameraView != null && mFragCameraView.isAdded()) return;
@@ -743,6 +804,10 @@ public class WhiteBoardCorrectionActivity extends SherlockFragmentActivity
 	public void onWhiteBoardResultCompleted() {
 		// TODO Auto-generated method stub
 		getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+		if(!mWhiteBoardCheckInfo.mIsCaptured){
+			deleteCopyImg();
+		}
+		mWhiteBoardCheckInfo.resetInfo();
 	}
 
 	@Override

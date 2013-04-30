@@ -5,7 +5,7 @@
     android:id="@+id/area_result_view_base"
     android:orientation="vertical" >
 
-    <ImageView
+    <com.nekomeshi312.whiteboardcorrection.ScalableImageView
         android:id="@+id/warped_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

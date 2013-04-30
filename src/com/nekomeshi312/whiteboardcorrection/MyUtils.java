@@ -1,6 +1,11 @@
 package com.nekomeshi312.whiteboardcorrection;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import android.app.Activity;
@@ -40,22 +45,13 @@ public class MyUtils {
 		return BitmapFactory.decodeFile(fn, opt);
 	}
 	
-	/**
-	 * Intentで渡された画像の情報を取得する
-	 * @param context context
-	 * @param intent 情報を取得するintent
-	 * @param pathInfo 画像のPath情報 pathInfo[0]:パス　 pathInfo[1]:ファイル名
-	 * @param size 画像サイズ size[0]:width, size[1]:height
-	 * @return true:成功　false:失敗
-	 */
-	public static boolean getImageInfoFromIntent(Context context, 
+	public static String getImageInfoFromIntent(Context context, 
 												Intent intent, 
-												String [] pathInfo, 
 												int [] size){
 		Uri uri = intent.getData();
 		if(uri == null){
     		Log.w(LOG_TAG, "Uri == null");
-    		return false;
+    		return null;
 		}
 		else{
 			//uriからファイル名に変換
@@ -67,18 +63,44 @@ public class MyUtils {
     		}
     		catch(IllegalArgumentException  e){
     			e.printStackTrace();
-    			return false;
+    			return null;
     		}
 			BitmapFactory.Options opt = new BitmapFactory.Options();
 			opt.inJustDecodeBounds = true;
 			BitmapFactory.decodeFile(filename, opt);//画像の解像度を取得
-    		File f = new File(filename);
-    		pathInfo[0] = f.getParent();
-    		pathInfo[1] = f.getName();
     		size[0] = opt.outWidth;
     		size[1] = opt.outHeight;
-    		return true;
+    		return filename;
 		}
+	}
+	
+	public static boolean copyFile(String src, String dst){
+		FileChannel destChannel = null;
+		FileChannel srcChannel = null;
+		boolean result = false;
+		try{
+		    srcChannel = new FileInputStream(src).getChannel();
+		    destChannel = new FileOutputStream(dst).getChannel();
+	        srcChannel.transferTo(0, srcChannel.size(), destChannel);
+	        result = true;
+		} catch(FileNotFoundException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				if(srcChannel != null)srcChannel.close();
+				if(destChannel != null) destChannel.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+		        result = false;
+			}
+		}
+		return result;
+
 	}
 	
 	public static class ProgressDialogFrag extends SherlockDialogFragment {
@@ -108,7 +130,7 @@ public class MyUtils {
 		    final String title = getArguments().getString(KEY_TITLE);
 		    final String msg = getArguments().getString(KEY_MSG);
 
-			mParentActivity = (WhiteBoardCorrectionActivity)getSherlockActivity();
+			mParentActivity = (Activity)getSherlockActivity();
 		    ProgressDialog proDialog = new ProgressDialog(mParentActivity);
 		    proDialog.setCancelable(false);
 		    proDialog.setTitle(title);
